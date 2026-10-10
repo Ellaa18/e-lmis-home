@@ -1,0 +1,425 @@
+
+.canada-form-page {
+  min-height: 100vh;
+  padding: 24px 16px 0;
+  background: #f2f5fb;
+  color: #202b3c;
+  font-family: Arial, "Noto Sans Ethiopic", sans-serif;
+}
+
+.canada-site-logo {
+  max-width: 1100px;
+  margin: 0 auto 20px;
+}
+
+.canada-form-card,
+.canada-preview-section {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto 28px;
+  padding: 28px;
+  background: #fff;
+  border: 1px solid #dce4f0;
+  border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(25, 45, 75, 0.08);
+}
+
+.canada-form-heading {
+  margin: 0 0 26px;
+  text-align: center;
+  color: #173d70;
+  font-size: 28px;
+}
+
+.canada-photo-upload {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 18px;
+  margin-bottom: 28px;
+  background: #f8faff;
+  border: 1px dashed #aebfd7;
+  border-radius: 12px;
+}
+
+.canada-photo-box {
+  width: 120px;
+  height: 145px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #aebbd0;
+  border-radius: 5px;
+  color: #66758a;
+  text-align: center;
+  font-size: 12px;
+}
+
+.canada-photo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.canada-photo-controls p {
+  margin: 10px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.canada-upload-button {
+  display: inline-block;
+  padding: 11px 18px;
+  border-radius: 7px;
+  background: #174f91;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.canada-upload-button:hover {
+  background: #103b6e;
+}
+
+.canada-form-section {
+  margin-top: 26px;
+}
+
+.canada-form-section h2 {
+  margin: 0 0 18px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #dce7f5;
+  color: #174f91;
+  font-size: 19px;
+}
+
+.canada-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.canada-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  color: #344256;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.canada-field input,
+.canada-field select {
+  width: 100%;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #fff;
+  color: #1e293b;
+  font: inherit;
+  font-weight: 400;
+  outline: none;
+}
+
+.canada-field input:focus,
+.canada-field select:focus {
+  border-color: #2868ac;
+  box-shadow: 0 0 0 3px rgba(40, 104, 172, 0.12);
+}
+
+.canada-form-message {
+  margin: 20px 0 0;
+  padding: 12px 14px;
+  border-radius: 7px;
+  background: #eff6ff;
+  color: #174f91;
+  overflow-wrap: anywhere;
+}
+
+.canada-form-actions,
+.canada-preview-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.canada-button {
+  min-height: 44px;
+  padding: 12px 24px;
+  border: 0;
+  border-radius: 8px;
+  background: #174f91;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.canada-button:hover {
+  background: #103b6e;
+}
+
+.canada-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.canada-register-button {
+  background: #16804a;
+}
+
+.canada-register-button:hover {
+  background: #10683b;
+}
+
+.canada-preview-section {
+  max-width: 1050px;
+  overflow-x: auto;
+}
+
+.canada-preview-section > h2 {
+  margin: 0 0 22px;
+  text-align: center;
+  color: #173d70;
+}
+
+.canada-paper {
+  position: relative;
+  isolation: isolate;
+  width: 210mm;
+  min-height: 297mm;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 12mm 14mm 10mm;
+  overflow: hidden;
+  background: #fff;
+  color: #111;
+  border: 1px solid #d1d5db;
+  font-family: Arial, "Noto Sans Ethiopic", sans-serif;
+  font-size: 13pt;
+  line-height: 1.15;
+}
+
+.canada-paper-watermark {
+  position: absolute;
+  z-index: -1;
+  top: 42%;
+  left: 50%;
+  width: 175mm;
+  height: 75mm;
+  object-fit: contain;
+  opacity: 0.13;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.canada-paper-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12mm;
+  min-height: 42mm;
+  margin-bottom: 5mm;
+}
+
+.canada-paper-photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35mm;
+  height: 43mm;
+  flex: 0 0 35mm;
+  overflow: hidden;
+  border: 1px solid #333;
+  background: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  font-size: 8pt;
+}
+
+.canada-paper-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.canada-paper-title {
+  flex: 1;
+  text-align: right;
+}
+
+.canada-paper-title h2 {
+  margin: 0 0 5mm;
+  font-size: 17pt;
+  text-align: center;
+  color: #111;
+}
+
+.canada-paper-title p {
+  margin: 0;
+  font-size: 10pt;
+}
+
+.canada-paper-intro {
+  margin: 3mm 0 5mm;
+  text-align: justify;
+}
+
+.canada-paper-intro p {
+  margin: 0 0 4mm;
+}
+
+.canada-paper-section {
+  position: relative;
+  margin-top: 4mm;
+  break-inside: avoid;
+}
+
+.canada-paper-section h3 {
+  margin: 0 0 3mm;
+  padding-bottom: 1.5mm;
+  border-bottom: 1px solid #777;
+  font-size: 11pt;
+}
+
+.canada-paper-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.5mm 6mm;
+}
+
+.canada-paper-field {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 9pt;
+}
+
+.canada-paper-field strong {
+  font-weight: 700;
+}
+
+.canada-paper-signature {
+  display: flex;
+  justify-content: space-between;
+  gap: 10mm;
+  margin-top: 6mm;
+  font-size: 9pt;
+}
+
+.canada-paper-stamp {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 27mm;
+  margin-top: 1mm;
+  padding-right: 5mm;
+}
+
+.canada-paper-stamp img {
+  width: 150mm;
+  height: 34mm;
+  object-fit: contain;
+}
+
+.canada-paper-motto {
+  margin: 2mm 0 4mm;
+  text-align: center;
+  font-weight: 700;
+  font-size: 15pt;
+}
+
+.canada-paper-footer {
+  margin-top: 2mm;
+  font-size: 9.5pt;
+}
+
+.canada-paper-footer hr {
+  height: 0;
+  margin: 0 0 3mm;
+  border: 0;
+  border-top: 1px solid #222;
+}
+
+.canada-paper-footer-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 5mm;
+  margin-top: 1.5mm;
+}
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .canada-paper,
+  .canada-paper * {
+    visibility: visible !important;
+  }
+
+  .canada-paper {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+@media (max-width: 650px) {
+  .canada-form-page {
+    padding: 14px 8px 0;
+  }
+
+  .canada-form-card,
+  .canada-preview-section {
+    padding: 18px 12px;
+  }
+
+  .canada-fields-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .canada-photo-upload {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .canada-form-heading {
+    font-size: 23px;
+  }
+
+  .canada-preview-section {
+    overflow-x: auto;
+  }
+
+  .canada-paper {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

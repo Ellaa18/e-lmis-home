@@ -1,0 +1,731 @@
+.kuwait-page {
+  min-height: 100vh;
+  background: #f3f6fb;
+  color: #172b4d;
+  font-family: Arial, "Noto Sans Ethiopic", sans-serif;
+}
+
+.kuwait-page * {
+  box-sizing: border-box;
+}
+
+.kuwait-header {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 24px clamp(18px, 5vw, 70px);
+  background: #ffffff;
+  border-bottom: 1px solid #e1e8f2;
+  box-shadow: 0 4px 18px rgba(18, 45, 83, 0.05);
+}
+
+.kuwait-header-copy h1 {
+  margin: 0 0 6px;
+  color: #123c75;
+  font-size: clamp(20px, 2.5vw, 29px);
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.kuwait-header-copy p {
+  margin: 0;
+  color: #687994;
+  font-size: 15px;
+}
+
+.kuwait-main {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 34px 0 58px;
+}
+
+.kuwait-intro {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.kuwait-eyebrow {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 7px 12px;
+  border: 1px solid #d9e7fa;
+  border-radius: 999px;
+  background: #eaf2ff;
+  color: #1755a0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+}
+
+.kuwait-intro h2 {
+  margin: 0 0 10px;
+  color: #123c75;
+  font-size: clamp(25px, 3vw, 34px);
+  font-weight: 800;
+}
+
+.kuwait-intro p {
+  max-width: 670px;
+  margin: 0 auto;
+  color: #687994;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.kuwait-form-card {
+  padding: clamp(20px, 4vw, 38px);
+  border: 1px solid #e2e9f3;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 12px 40px rgba(22, 48, 85, 0.07);
+}
+
+.kuwait-form-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 27px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e8edf5;
+}
+
+.kuwait-form-heading h2 {
+  margin: 0 0 5px;
+  color: #153f78;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.kuwait-form-heading p {
+  margin: 0;
+  color: #77859b;
+  font-size: 14px;
+}
+
+.kuwait-required-note {
+  color: #78869b;
+  font-size: 12px;
+}
+
+.kuwait-photo-upload {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 30px;
+  padding: 22px;
+  border: 1px dashed #b9cbe2;
+  border-radius: 16px;
+  background: #f8fbff;
+}
+
+.kuwait-photo-preview {
+  display: flex;
+  flex: 0 0 120px;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 140px;
+  overflow: hidden;
+  border: 1px solid #d7e1ee;
+  border-radius: 10px;
+  background: #edf3fa;
+}
+
+.kuwait-photo-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kuwait-photo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #8292a8;
+  text-align: center;
+}
+
+.kuwait-photo-placeholder span {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 50%;
+  background: #dfeafa;
+  color: #1e5ca7;
+  font-size: 26px;
+}
+
+.kuwait-photo-placeholder small {
+  font-size: 12px;
+}
+
+.kuwait-photo-details h3 {
+  margin: 0 0 7px;
+  color: #203f69;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.kuwait-photo-details p {
+  margin: 0 0 13px;
+  color: #74829a;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.kuwait-photo-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kuwait-file-name {
+  display: block;
+  margin-top: 9px;
+  color: #55708e;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.kuwait-section-title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin: 30px 0 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e8edf5;
+}
+
+.kuwait-section-title > span {
+  display: grid;
+  flex: 0 0 39px;
+  width: 39px;
+  height: 39px;
+  place-items: center;
+  border-radius: 12px;
+  background: #eaf2ff;
+  color: #1755a0;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.kuwait-section-title h3 {
+  margin: 0 0 4px;
+  color: #173f75;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.kuwait-section-title p {
+  margin: 0;
+  color: #8290a5;
+  font-size: 12px;
+}
+
+.kuwait-input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 19px 22px;
+}
+
+.kuwait-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kuwait-field > span {
+  color: #354b69;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.kuwait-field input,
+.kuwait-field select {
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 13px;
+  border: 1px solid #d9e2ee;
+  border-radius: 10px;
+  outline: none;
+  background: #fbfcfe;
+  color: #1b2e49;
+  font: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.kuwait-field input:focus,
+.kuwait-field select:focus {
+  border-color: #3a78c2;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(58, 120, 194, 0.12);
+}
+
+.kuwait-field input::placeholder {
+  color: #a2adbd;
+}
+
+.kuwait-message {
+  margin-top: 25px;
+  padding: 13px 15px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.kuwait-message-success {
+  border-color: #b9e5cf;
+  background: #edfbf3;
+  color: #17663d;
+}
+
+.kuwait-message-error {
+  border-color: #f0c4c4;
+  background: #fff1f1;
+  color: #a12828;
+}
+
+.kuwait-message-info {
+  border-color: #c8dcf6;
+  background: #eff6ff;
+  color: #1b508b;
+}
+
+.kuwait-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.kuwait-button {
+  display: inline-flex;
+  min-height: 45px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease,
+    transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kuwait-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.kuwait-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.kuwait-button-primary {
+  background: #1555a0;
+  color: #ffffff;
+  box-shadow: 0 5px 12px rgba(21, 85, 160, 0.16);
+}
+
+.kuwait-button-primary:hover:not(:disabled) {
+  background: #104681;
+  box-shadow: 0 7px 16px rgba(21, 85, 160, 0.2);
+}
+
+.kuwait-button-light {
+  border-color: #cfdaea;
+  background: #ffffff;
+  color: #1a4c88;
+}
+
+.kuwait-button-light:hover:not(:disabled) {
+  border-color: #8eb1df;
+  background: #f0f6ff;
+}
+
+.kuwait-privacy-note {
+  margin: 20px 0 0;
+  color: #8290a5;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Preview area */
+
+.kuwait-preview-section {
+  margin-top: 38px;
+}
+
+.kuwait-preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.kuwait-preview-toolbar h2 {
+  margin: 0 0 6px;
+  color: #153f78;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.kuwait-preview-toolbar p {
+  margin: 0;
+  color: #77859b;
+  font-size: 13px;
+}
+
+.kuwait-paper {
+  position: relative;
+  width: 100%;
+  max-width: 794px;
+  min-height: 1123px;
+  margin: 0 auto;
+  overflow: hidden;
+  padding: 32px;
+  border: 1px solid #dce3ec;
+  background: #ffffff;
+  box-shadow: 0 12px 35px rgba(17, 42, 77, 0.12);
+  color: #171717;
+  isolation: isolate;
+}
+
+.kuwait-paper-watermark {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: 65%;
+  max-height: 65%;
+  object-fit: contain;
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.kuwait-paper-content {
+  position: relative;
+  z-index: 1;
+}
+
+.kuwait-paper-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 112px;
+}
+
+.kuwait-paper-photo {
+  width: 94px;
+  height: 112px;
+  overflow: hidden;
+  border: 1px solid #555;
+  background: #f7f7f7;
+}
+
+.kuwait-paper-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kuwait-paper-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.kuwait-paper-date strong {
+  font-weight: 700;
+}
+
+.kuwait-paper-heading {
+  margin: 14px 0 16px;
+  text-align: center;
+}
+
+.kuwait-paper-heading h2 {
+  margin: 0 0 7px;
+  color: #111;
+  font-family: Arial, "Noto Sans Ethiopic", sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.kuwait-paper-heading h3 {
+  margin: 0;
+  color: #222;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.kuwait-paper-rule {
+  height: 2px;
+  margin-top: 12px;
+  background: #333;
+}
+
+.kuwait-paper-introduction {
+  margin: 0 0 16px;
+  color: #171717;
+  font-family: Arial, "Noto Sans Ethiopic", sans-serif;
+  font-size: 13px;
+  line-height: 1.9;
+  text-align: justify;
+}
+
+.kuwait-paper-introduction p {
+  margin: 0 0 8px;
+}
+
+.kuwait-paper-table-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+}
+
+.kuwait-paper-table-block {
+  min-width: 0;
+  margin-bottom: 14px;
+}
+
+.kuwait-paper-table-block h3 {
+  margin: 0 0 7px;
+  color: #111;
+  font-family: Arial, "Noto Sans Ethiopic", sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.7;
+}
+
+.kuwait-paper-table-block table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: rgba(255, 255, 255, 0.76);
+  font-family: Arial, "Noto Sans Ethiopic", sans-serif;
+  font-size: 10px;
+}
+
+.kuwait-paper-table-block th,
+.kuwait-paper-table-block td {
+  padding: 6px 5px;
+  border: 1px solid #777;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.kuwait-paper-table-block th {
+  width: 48%;
+  background: rgba(241, 244, 248, 0.88);
+  font-weight: 700;
+  text-align: left;
+}
+
+.kuwait-paper-table-block td {
+  color: #111;
+}
+
+.kuwait-contact-table {
+  margin-top: 2px;
+}
+
+.kuwait-contact-table table th {
+  width: 35%;
+}
+
+.kuwait-paper-signatures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px;
+  margin-top: 25px;
+  color: #111;
+  font-family: Arial, "Noto Sans Ethiopic", sans-serif;
+  font-size: 10px;
+}
+
+.kuwait-paper-signatures p {
+  margin: 0;
+  line-height: 2.1;
+  overflow-wrap: anywhere;
+}
+
+.kuwait-paper-signatures strong {
+  display: block;
+  margin-top: 5px;
+  font-weight: 700;
+}
+
+.kuwait-paper-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 30px;
+  padding-top: 9px;
+  border-top: 1px solid #888;
+  color: #444;
+  font-size: 9px;
+}
+
+/* Responsive layout */
+
+@media (max-width: 700px) {
+  .kuwait-header {
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 16px;
+  }
+
+  .kuwait-header-copy h1 {
+    font-size: 19px;
+  }
+
+  .kuwait-header-copy p {
+    font-size: 13px;
+  }
+
+  .kuwait-main {
+    width: min(100% - 22px, 1120px);
+    padding-top: 24px;
+  }
+
+  .kuwait-form-card {
+    padding: 19px 15px;
+    border-radius: 15px;
+  }
+
+  .kuwait-form-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .kuwait-photo-upload {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .kuwait-input-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 15px;
+  }
+
+  .kuwait-form-actions {
+    flex-direction: column;
+  }
+
+  .kuwait-form-actions .kuwait-button {
+    width: 100%;
+  }
+
+  .kuwait-preview-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .kuwait-paper {
+    min-height: auto;
+    padding: 18px;
+  }
+
+  .kuwait-paper-table-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .kuwait-paper-signatures {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+
+  .kuwait-page {
+    background: #ffffff !important;
+  }
+
+  .kuwait-header,
+  .kuwait-intro,
+  .kuwait-form-card,
+  .kuwait-preview-toolbar,
+  .kuwait-page > footer {
+    display: none !important;
+  }
+
+  .kuwait-main {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .kuwait-preview-section {
+    margin: 0;
+  }
+
+  .kuwait-paper {
+    width: 100%;
+    max-width: none;
+    min-height: auto;
+    margin: 0;
+    padding: 10mm;
+    border: 0;
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+.kuwait-preview-bottom-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 22px auto 0;
+  padding-bottom: 10px;
+}
+
+.kuwait-preview-bottom-actions .kuwait-button {
+  min-width: 240px;
+}
+
+@media (max-width: 600px) {
+  .kuwait-preview-bottom-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .kuwait-preview-bottom-actions .kuwait-button {
+    width: 100%;
+    min-width: 0;
+  }
+}

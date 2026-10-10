@@ -1,0 +1,53 @@
+/* =========================================
+   SHARED BUTTON
+========================================= */
+
+button {
+  font-family: inherit;
+}
+
+/* =========================================
+   IMAGES
+========================================= */
+
+img {
+  max-width: 100%;
+}
+
+/* =========================================
+   LINKS
+========================================= */
+
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* =========================================
+   CARDS
+========================================= */
+
+.feature-card,
+.development-card,
+.news-card,
+.guide-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.feature-card:hover,
+.development-card:hover,
+.news-card:hover,
+.guide-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(25, 60, 70, 0.10);
+}
+
+/* =========================================
+   MOBILE TOUCH
+========================================= */
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
