@@ -1,10 +1,13 @@
+
 function Logo({ className = "" }) {
   return (
-    <img
-      src="/images/logo.jpg"
-      alt="E-LMIS"
-      className={`site-logo ${className}`}
-    />
+    <div className={`site-logo-container ${className}`.trim()}>
+      <img
+        src="/images/logo.jpg"
+        alt="E-LMIS"
+        className="site-logo"
+      />
+    </div>
   );
 }
 

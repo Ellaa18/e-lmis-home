@@ -8,609 +8,330 @@ function HelpAndGuidance() {
     {
       id: 1,
       number: "01",
-      title: "Start Your Application · ማመልከቻዎን ይጀምሩ",
-      text: "Begin your application by clicking the Fill Application Form button. · የማመልከቻ ቅጹን ሙላ የሚለውን ቁልፍ በመጫን ማመልከቻዎን ይጀምሩ።",
+      title: "Open the Application Page · የማመልከቻ ገጹን ይክፈቱ",
+      text: "Start from the official e-LMIS home page and select Fill Application Form. · ከe-LMIS ዋና ገጽ ጀምረው የማመልከቻ ቅጹን ይሙሉ የሚለውን ይምረጡ።",
       details: (
         <>
           <p>
-            To begin your application, click the{" "}
-            <strong>Fill Application Form</strong> button in the welcome
-            section of the website.
+            Open the e-LMIS website. On the home page, find and select
+            <strong> Fill Application Form</strong>.
             <br />
-            ማመልከቻዎን ለመጀመር በድረ-ገጹ የመግቢያ ክፍል ውስጥ ያለውን{" "}
-            <strong>Fill Application Form · የማመልከቻ ቅጹን ሙላ</strong>{" "}
-            የሚለውን ቁልፍ ይጫኑ።
+            የe-LMIS ድረ-ገጽን ይክፈቱ። በዋናው ገጽ ላይ
+            <strong> Fill Application Form · የማመልከቻ ቅጹን ይሙሉ</strong>
+            የሚለውን ይምረጡ።
           </p>
+          <ol>
+            <li>Wait for the application page to load.</li>
+            <li>Read the instructions shown on the page.</li>
+            <li>Continue to the country selection.</li>
+          </ol>
           <p>
-            This will take you to the application page where you can select
-            the country for which you want to apply.
-            <br />
-            ይህ ለማመልከት የሚፈልጉበትን አገር መምረጥ ወደሚችሉበት የማመልከቻ ገጽ ይወስድዎታል።
-          </p>
-          <p>
-            Make sure you are ready with your personal information and
-            official documents before starting.
-            <br />
-            ከመጀመርዎ በፊት የግል መረጃዎንና ኦፊሴላዊ ሰነዶችዎን አዘጋጅተው መያዝዎን ያረጋግጡ።
+            የማመልከቻ ገጹ እስኪከፈት ይጠብቁ፣ መመሪያዎቹን ያንብቡና
+            ወደ አገር ምርጫው ይቀጥሉ።
           </p>
         </>
       ),
     },
-
     {
       id: 2,
       number: "02",
-      title: "Choose Your Country · አገርዎን ይምረጡ",
-      text: "Select the country for which you are completing your application. · ማመልከቻውን የሚሞሉለትን አገር ይምረጡ።",
+      title: "Select Your Destination · የሚሄዱበትን አገር ይምረጡ",
+      text: "Choose the country that matches the application you need. · ከሚፈልጉት ማመልከቻ ጋር የሚስማማውን አገር ይምረጡ።",
       details: (
         <>
           <p>
-            After opening the application page, select the country you want
-            to apply for.
+            Select the correct destination from the countries available on
+            the application page.
             <br />
-            የማመልከቻ ገጹን ከከፈቱ በኋላ ማመልከት የሚፈልጉበትን አገር ይምረጡ።
-          </p>
-          <p>
-            The available application choices are:
-            <br />
-            የሚከተሉት የአገር ምርጫዎች ይገኛሉ፦
+            በማመልከቻ ገጹ ላይ ከቀረቡት አገሮች ትክክለኛውን መዳረሻ ይምረጡ።
           </p>
           <ul>
-            <li>🇨🇦 <strong>Canada · ካናዳ</strong></li>
-            <li>🇦🇪 <strong>Dubai · ዱባይ</strong></li>
-            <li>🇰🇼 <strong>Kuwait · ኩዌት</strong></li>
-            <li>🇸🇦 <strong>Saudi Arabia · ሳዑዲ ዓረቢያ</strong></li>
+            <li>🇨🇦 Canada · ካናዳ</li>
+            <li>🇦🇪 Dubai · ዱባይ</li>
+            <li>🇰🇼 Kuwait · ኩዌት</li>
+            <li>🇸🇦 Saudi Arabia · ሳዑዲ ዓረቢያ</li>
           </ul>
           <p>
-            Carefully select the correct country before continuing with the
-            application.
+            The available choices depend on what your website currently
+            supports. Choose the country relevant to your application.
             <br />
-            ወደ ቀጣዩ ደረጃ ከመሄድዎ በፊት ትክክለኛውን አገር በጥንቃቄ ይምረጡ።
+            የሚታዩት አገሮች በድረ-ገጹ ላይ በተዘጋጁት አማራጮች ላይ ይመሰረታሉ።
+            ከማመልከቻዎ ጋር የሚስማማውን አገር ይምረጡ።
           </p>
         </>
       ),
     },
-
     {
       id: 3,
       number: "03",
-      title: "Understand the Application Form · የማመልከቻ ቅጹን ይረዱ",
-      text: "Read the form carefully before entering your information. · መረጃዎን ከማስገባትዎ በፊት ቅጹን በጥንቃቄ ያንብቡ።",
+      title: "Prepare Your Documents · ሰነዶችዎን ያዘጋጁ",
+      text: "Have your passport, personal details, contact information, and requested files ready. · ፓስፖርትዎን፣ የግል መረጃዎን፣ የመገኛ መረጃዎንና የተጠየቁ ሰነዶችን ያዘጋጁ።",
       details: (
         <>
           <p>
-            Once you select a country, the corresponding application form
-            will appear.
+            Before filling in the form, prepare the information and
+            documents requested by the application.
             <br />
-            አገር ከመረጡ በኋላ ለዚያ አገር የሚሆነው የማመልከቻ ቅጽ ይታያል።
+            ቅጹን ከመሙላትዎ በፊት በማመልከቻው የተጠየቁትን መረጃዎችና
+            ሰነዶች ያዘጋጁ።
           </p>
+          <ul>
+            <li>Passport or identification details · የፓስፖርት ወይም የመታወቂያ መረጃ</li>
+            <li>Full name and date of birth · ሙሉ ስምና የትውልድ ቀን</li>
+            <li>Phone number and email, if requested · ስልክ ቁጥርና ኢሜይል፣ ከተጠየቁ</li>
+            <li>Employment details, if requested · የሥራ መረጃ፣ ከተጠየቀ</li>
+            <li>Clear copies of the required documents · ግልጽ የሰነዶች ቅጂዎች</li>
+          </ul>
           <p>
-            Before filling anything in, take a moment to look through the
-            entire form and understand the information being requested.
+            Only provide information that is true and belongs to you.
+            Do not upload another person's documents.
             <br />
-            ማንኛውንም መረጃ ከማስገባትዎ በፊት ቅጹን በሙሉ ይመልከቱና የሚጠየቀውን መረጃ ይረዱ።
-          </p>
-          <p>
-            Fields marked as required must be completed before the
-            application can be submitted.
-            <br />
-            አስፈላጊ ተብለው የተመለከቱ መስኮች ማመልከቻውን ከማስገባትዎ በፊት መሞላት አለባቸው።
+            እውነተኛና የእርስዎ የሆነ መረጃ ብቻ ያስገቡ። የሌላ ሰውን
+            ሰነድ አይጫኑ።
           </p>
         </>
       ),
     },
-
     {
       id: 4,
       number: "04",
-      title: "Enter Your Full Name · ሙሉ ስምዎን ያስገቡ",
-      text: "Enter your name exactly as it appears on your official documents. · ስምዎን በኦፊሴላዊ ሰነዶችዎ ላይ እንደተጻፈው በትክክል ያስገቡ።",
+      title: "Complete Your Personal Information · የግል መረጃዎን ይሙሉ",
+      text: "Enter your details in the matching fields and follow the form instructions. · የግል መረጃዎን በተመሳሳይ መስኮች ውስጥ ያስገቡ።",
       details: (
         <>
           <p>
-            Enter your full name carefully in the personal information
-            section.
+            Fill in every field requested by the selected application.
+            Depending on the form, you may be asked for:
             <br />
-            በግል መረጃ ክፍል ውስጥ ሙሉ ስምዎን በጥንቃቄ ያስገቡ።
-          </p>
-          <p>
-            Your name should match your official passport or identification
-            document.
-            <br />
-            ስምዎ በኦፊሴላዊ ፓስፖርትዎ ወይም በመታወቂያ ሰነድዎ ላይ ከተጻፈው ጋር መመሳሰል አለበት።
-          </p>
-          <ul>
-            <li>Check the spelling carefully. · አጻጻፉን በጥንቃቄ ያረጋግጡ።</li>
-            <li>Do not accidentally leave out part of your name. · የስምዎን ክፍል በስህተት አይተዉ።</li>
-            <li>Do not add unnecessary characters. · አላስፈላጊ ምልክቶችን አይጨምሩ።</li>
-            <li>Review the name again before submitting. · ከማስገባትዎ በፊት ስምዎን እንደገና ይመልከቱ።</li>
-          </ul>
-        </>
-      ),
-    },
-
-    {
-      id: 5,
-      number: "05",
-      title: "Enter Passport Information · የፓስፖርት መረጃዎን ያስገቡ",
-      text: "Enter your passport details accurately and carefully. · የፓስፖርት መረጃዎን በትክክልና በጥንቃቄ ያስገቡ።",
-      details: (
-        <>
-          <p>
-            Enter your passport information exactly as it appears on your
-            passport.
-            <br />
-            የፓስፖርት መረጃዎን በፓስፖርትዎ ላይ እንደተጻፈው በትክክል ያስገቡ።
-          </p>
-          <ul>
-            <li>Passport number · የፓስፖርት ቁጥር</li>
-            <li>Passport-related information requested by the form · በቅጹ የተጠየቀ ከፓስፖርት ጋር የተያያዘ መረጃ</li>
-            <li>Other identification details when required · አስፈላጊ ሲሆን ሌሎች የመታወቂያ ዝርዝሮች</li>
-          </ul>
-          <p>
-            Pay special attention to letters and numbers because a single
-            incorrect character can make the information incorrect.
-            <br />
-            አንድ ፊደል ወይም ቁጥር ብቻ እንኳን ስህተት ከሆነ መረጃውን ሊያሳስት ስለሚችል ለፊደሎችና ቁጥሮች ልዩ ትኩረት ይስጡ።
-          </p>
-        </>
-      ),
-    },
-
-    {
-      id: 6,
-      number: "06",
-      title: "Enter Date of Birth · የትውልድ ቀንዎን ያስገቡ",
-      text: "Provide your correct date of birth. · ትክክለኛውን የትውልድ ቀንዎን ያስገቡ።",
-      details: (
-        <>
-          <p>
-            Enter your date of birth exactly as shown on your official
-            documents.
-            <br />
-            የትውልድ ቀንዎን በኦፊሴላዊ ሰነዶችዎ ላይ እንደተመለከተው በትክክል ያስገቡ።
-          </p>
-          <p>
-            Check the day, month, and year carefully before continuing.
-            <br />
-            ከመቀጠልዎ በፊት ቀኑን፣ ወሩንና ዓመቱን በጥንቃቄ ያረጋግጡ።
-          </p>
-          <p>
-            If the form provides a date selector, use it carefully and make
-            sure the selected date is correct.
-            <br />
-            ቅጹ የቀን መምረጫ ካቀረበ፣ በጥንቃቄ ይጠቀሙበትና የመረጡት ቀን ትክክል መሆኑን ያረጋግጡ።
-          </p>
-        </>
-      ),
-    },
-
-    {
-      id: 7,
-      number: "07",
-      title: "Enter Place of Birth · የትውልድ ቦታዎን ያስገቡ",
-      text: "Provide your correct place of birth. · ትክክለኛውን የትውልድ ቦታዎን ያስገቡ።",
-      details: (
-        <>
-          <p>
-            Enter your place of birth according to your official documents.
-            <br />
-            የትውልድ ቦታዎን በኦፊሴላዊ ሰነዶችዎ መሠረት ያስገቡ።
-          </p>
-          <p>
-            Check the spelling of the city, town, or other location before
-            continuing.
-            <br />
-            ከመቀጠልዎ በፊት የከተማውን ወይም የሌላውን ቦታ ስም አጻጻፍ ያረጋግጡ።
-          </p>
-          <p>
-            Do not enter your current residence if the form specifically
-            asks for your place of birth.
-            <br />
-            ቅጹ የትውልድ ቦታዎን በግልጽ ከጠየቀ አሁን የሚኖሩበትን ቦታ አያስገቡ።
-          </p>
-        </>
-      ),
-    },
-
-    {
-      id: 8,
-      number: "08",
-      title: "Enter Contact Information · የመገኛ መረጃዎን ያስገቡ",
-      text: "Provide a correct phone number and other requested contact information. · ትክክለኛ ስልክ ቁጥርና ሌሎች የተጠየቁ የመገኛ መረጃዎችን ያስገቡ።",
-      details: (
-        <>
-          <p>
-            Enter your current contact information carefully.
-            <br />
-            አሁን የሚጠቀሙበትን የመገኛ መረጃ በጥንቃቄ ያስገቡ።
-          </p>
-          <ul>
-            <li>Phone number · ስልክ ቁጥር</li>
-            <li>Email address, if requested · ኢሜይል አድራሻ፣ ከተጠየቀ</li>
-            <li>Other contact information requested by the form · በቅጹ የተጠየቁ ሌሎች የመገኛ መረጃዎች</li>
-          </ul>
-          <p>
-            Make sure your phone number and email address are entered
-            correctly so that you can be contacted if necessary.
-            <br />
-            አስፈላጊ ሲሆን ሊያገኙዎት እንዲችሉ ስልክ ቁጥርዎና ኢሜይል አድራሻዎ ትክክል መሆናቸውን ያረጋግጡ።
-          </p>
-        </>
-      ),
-    },
-
-    {
-      id: 9,
-      number: "09",
-      title: "Enter Employment Information · የሥራ መረጃዎን ያስገቡ",
-      text: "Complete the employment and work-related information requested by the form. · በቅጹ የተጠየቀውን የሥራ መረጃ ይሙሉ።",
-      details: (
-        <>
-          <p>
-            Complete the employment section carefully.
-            <br />
-            የሥራ መረጃ ክፍሉን በጥንቃቄ ይሙሉ።
-          </p>
-          <p>
-            Enter the requested employer, employment, job, or work-related
-            information accurately.
-            <br />
-            የአሠሪ፣ የቅጥር፣ የሥራ ወይም ከሥራ ጋር የተያያዘውን የተጠየቀ መረጃ በትክክል ያስገቡ።
-          </p>
-          <p>
-            Make sure the information you enter matches the documents or
-            information provided to you by your employer when applicable.
-            <br />
-            አስፈላጊ በሆነበት ጊዜ የሚያስገቡት መረጃ ከአሠሪዎ ከተሰጡዎት ሰነዶችና መረጃዎች ጋር መጣጣሙን ያረጋግጡ።
-          </p>
-        </>
-      ),
-    },
-
-    {
-      id: 10,
-      number: "10",
-      title: "Complete All Required Fields · ሁሉንም አስፈላጊ መስኮች ይሙሉ",
-      text: "Make sure every required field has been completed. · ሁሉም አስፈላጊ መስኮች መሞላታቸውን ያረጋግጡ።",
-      details: (
-        <>
-          <p>
-            Before moving forward, check the entire form for required
-            fields.
-            <br />
-            ወደ ቀጣዩ ደረጃ ከመሄድዎ በፊት ቅጹን በሙሉ በመመልከት አስፈላጊ መስኮችን ያረጋግጡ።
-          </p>
-          <ul>
-            <li>Do not leave required fields empty. · አስፈላጊ መስኮችን ባዶ አይተዉ።</li>
-            <li>Check that every required selection has been made. · ሁሉም አስፈላጊ ምርጫዎች መደረጋቸውን ያረጋግጡ።</li>
-            <li>Make sure text fields contain the correct information. · የጽሑፍ መስኮች ትክክለኛ መረጃ መያዛቸውን ያረጋግጡ።</li>
-            <li>Correct any validation errors shown by the form. · በቅጹ የሚታዩ የማረጋገጫ ስህተቶችን ያስተካክሉ።</li>
-          </ul>
-          <p>
-            Completing all required fields will help prevent problems during
-            submission.
-            <br />
-            ሁሉንም አስፈላጊ መስኮች መሙላት በማመልከቻ ማስገባት ወቅት ችግሮችን ለመቀነስ ይረዳል።
-          </p>
-        </>
-      ),
-    },
-
-    {
-      id: 11,
-      number: "11",
-      title: "Upload Required Documents · አስፈላጊ ሰነዶችን ይጫኑ",
-      text: "Upload the documents requested by the application. · በማመልከቻው የተጠየቁትን ሰነዶች ይጫኑ።",
-      details: (
-        <>
-          <p>
-            If the application asks you to upload documents, select the
-            appropriate files from your device.
-            <br />
-            ማመልከቻው ሰነዶችን እንዲጭኑ ከጠየቀዎት ከመሣሪያዎ ትክክለኛዎቹን ፋይሎች ይምረጡ።
-          </p>
-          <p>
-            Make sure that each uploaded document is the correct document
-            and is readable.
-            <br />
-            የጫኑት እያንዳንዱ ሰነድ ትክክለኛ መሆኑንና ሊነበብ እንደሚችል ያረጋግጡ።
-          </p>
-          <ul>
-            <li>Use the correct document for each field. · ለእያንዳንዱ መስክ ትክክለኛውን ሰነድ ይጠቀሙ።</li>
-            <li>Make sure images are clear enough to read. · ምስሎቹ በቂ ግልጽነት እንዳላቸው ያረጋግጡ።</li>
-            <li>Do not accidentally upload another person's document. · የሌላ ሰውን ሰነድ በስህተት አይጫኑ።</li>
-            <li>Check that the upload completed successfully. · የሰነድ መጫኑ በትክክል መጠናቀቁን ያረጋግጡ።</li>
-          </ul>
-        </>
-      ),
-    },
-
-    {
-      id: 12,
-      number: "12",
-      title: "Check Your Documents · ሰነዶችዎን ያረጋግጡ",
-      text: "Review the uploaded documents before continuing. · ከመቀጠልዎ በፊት የጫኗቸውን ሰነዶች ይመልከቱ።",
-      details: (
-        <>
-          <p>
-            After uploading your documents, carefully check them.
-            <br />
-            ሰነዶችዎን ከጫኑ በኋላ በጥንቃቄ ያረጋግጡ።
-          </p>
-          <ul>
-            <li>Confirm that the document belongs to you. · ሰነዱ የእርስዎ መሆኑን ያረጋግጡ።</li>
-            <li>Confirm that the correct document was uploaded. · ትክክለኛው ሰነድ መጫኑን ያረጋግጡ።</li>
-            <li>Check that the information is visible. · መረጃው በግልጽ መታየቱን ያረጋግጡ።</li>
-            <li>Check that the document is not accidentally duplicated. · ሰነዱ በስህተት ሁለት ጊዜ አለመጫኑን ያረጋግጡ።</li>
-          </ul>
-          <p>
-            If you notice a mistake, replace the document before continuing.
-            <br />
-            ስህተት ካገኙ ከመቀጠልዎ በፊት ሰነዱን በትክክለኛው ይተኩ።
-          </p>
-        </>
-      ),
-    },
-
-    {
-      id: 13,
-      number: "13",
-      title: "Review Your Application · ማመልከቻዎን ይገምግሙ",
-      text: "Carefully review every section before finishing the application. · ማመልከቻዎን ከማጠናቀቅዎ በፊት እያንዳንዱን ክፍል በጥንቃቄ ይመልከቱ።",
-      details: (
-        <>
-          <p>
-            This is one of the most important steps.
-            <br />
-            ይህ ከሁሉም አስፈላጊ ደረጃዎች አንዱ ነው።
-          </p>
-          <p>
-            Review all information you entered before selecting either
-            printing option.
-            <br />
-            ማንኛውንም የማተሚያ አማራጭ ከመምረጥዎ በፊት ያስገቡትን መረጃ በሙሉ ይገምግሙ።
+            በመረጡት ማመልከቻ የተጠየቁትን መስኮች ይሙሉ። እንደ ቅጹ አይነት
+            የሚከተሉት ሊጠየቁ ይችላሉ፦
           </p>
           <ul>
             <li>Full name · ሙሉ ስም</li>
-            <li>Passport information · የፓስፖርት መረጃ</li>
+            <li>Passport number · የፓስፖርት ቁጥር</li>
             <li>Date of birth · የትውልድ ቀን</li>
             <li>Place of birth · የትውልድ ቦታ</li>
-            <li>Phone and contact information · ስልክና የመገኛ መረጃ</li>
-            <li>Employment information · የሥራ መረጃ</li>
-            <li>Country selection · የአገር ምርጫ</li>
-            <li>Uploaded documents · የተጫኑ ሰነዶች</li>
+            <li>Phone and other contact information · ስልክና ሌሎች የመገኛ መረጃዎች</li>
+            <li>Employment or destination-specific information · የሥራ ወይም የመዳረሻ አገር መረጃ</li>
           </ul>
           <p>
-            Correct any mistakes you find before continuing.
+            Match names, numbers, and dates to your official documents.
+            Do not guess if you are unsure about a detail.
             <br />
-            ከመቀጠልዎ በፊት ያገኙትን ማንኛውንም ስህተት ያስተካክሉ።
+            ስሞችን፣ ቁጥሮችንና ቀናትን ከኦፊሴላዊ ሰነዶችዎ ጋር ያመሳስሉ።
+            ስለ መረጃ እርግጠኛ ካልሆኑ በግምት አይሙሉ።
           </p>
         </>
       ),
     },
-
     {
-      id: 14,
-      number: "14",
-      title: "Check for Spelling Mistakes · የአጻጻፍ ስህተቶችን ያረጋግጡ",
-      text: "Make sure names, numbers, and other information are written correctly. · ስሞች፣ ቁጥሮችና ሌሎች መረጃዎች በትክክል መጻፋቸውን ያረጋግጡ።",
+      id: 5,
+      number: "05",
+      title: "Upload the Required Files · አስፈላጊ ፋይሎችን ይጫኑ",
+      text: "Choose the correct document for each upload field and wait for it to finish. · ለእያንዳንዱ የፋይል መስክ ትክክለኛውን ሰነድ ይምረጡ።",
       details: (
         <>
           <p>
-            Carefully check spelling and numbers throughout the application.
+            If the application includes document upload fields, use each
+            upload control to select the file requested for that field.
             <br />
-            በማመልከቻው ውስጥ ያሉትን አጻጻፎችና ቁጥሮች በጥንቃቄ ያረጋግጡ።
+            ማመልከቻው የሰነድ መጫኛ መስኮች ካሉት፣ ለእያንዳንዱ መስክ
+            የተጠየቀውን ፋይል ይምረጡ።
           </p>
+          <ul>
+            <li>Check the file before selecting it. · ፋይሉን ከመምረጥዎ በፊት ያረጋግጡ።</li>
+            <li>Make sure names and numbers are readable. · ስሞችና ቁጥሮች ሊነበቡ እንደሚችሉ ያረጋግጡ።</li>
+            <li>Follow any file-type or size limits displayed by the website. · በድረ-ገጹ የተገለጹ የፋይል አይነትና መጠን ገደቦችን ይከተሉ።</li>
+            <li>Wait until the upload finishes. · ፋይሉ እስኪጫን ይጠብቁ።</li>
+          </ul>
           <p>
-            Pay particular attention to names, passport numbers, phone
-            numbers, dates, and other identification information.
+            If an upload fails, check your internet connection and try
+            again. Do not assume the file was saved until the page confirms it.
             <br />
-            ለስሞች፣ ለፓስፖርት ቁጥሮች፣ ለስልክ ቁጥሮች፣ ለቀናትና ለሌሎች የመታወቂያ መረጃዎች ልዩ ትኩረት ይስጡ።
-          </p>
-          <p>
-            Do not assume the information is correct simply because the form
-            accepted it. Review it yourself.
-            <br />
-            ቅጹ መረጃውን ተቀብሎታል ብለው ብቻ ትክክል ነው ብለው አያስቡ። እርስዎ ራስዎ እንደገና ይመልከቱት።
+            ፋይል መጫን ካልተሳካ፣ የኢንተርኔት ግንኙነትዎን ያረጋግጡና እንደገና
+            ይሞክሩ። ገጹ እስኪያረጋግጥ ድረስ ፋይሉ ተቀምጧል ብለው አያስቡ።
           </p>
         </>
       ),
     },
-
     {
-      id: 15,
-      number: "15",
-      title: "Choose Submit & Print · አስገባና አትም ይምረጡ",
-      text: "Use Submit & Print when you are ready to officially submit the application. · ማመልከቻዎን በይፋ ለማስገባት ዝግጁ ሲሆኑ Submit & Print ይምረጡ።",
+      id: 6,
+      number: "06",
+      title: "Review Before Submitting · ከማስገባትዎ በፊት ይገምግሙ",
+      text: "Check every field and uploaded document before choosing a submission option. · የማስገቢያ አማራጭ ከመምረጥዎ በፊት መረጃዎንና ሰነዶችዎን ያረጋግጡ።",
       details: (
         <>
           <p>
-            At the bottom of the application form, select{" "}
-            <strong>Submit & Print</strong> when your application is complete
-            and you are ready to submit it.
+            Review the whole application from beginning to end.
             <br />
-            ማመልከቻዎን ሲያጠናቅቁና ለማስገባት ዝግጁ ሲሆኑ በቅጹ ታች ያለውን{" "}
-            <strong>Submit & Print · አስገባና አትም</strong> የሚለውን ይምረጡ።
+            ማመልከቻውን ከመጀመሪያ እስከ መጨረሻ ይገምግሙ።
           </p>
+          <ul>
+            <li>Check spelling of your full name. · የሙሉ ስምዎን አጻጻፍ ያረጋግጡ።</li>
+            <li>Check passport number and date of birth. · የፓስፖርት ቁጥርና የትውልድ ቀን ያረጋግጡ።</li>
+            <li>Check the selected country. · የመረጡትን አገር ያረጋግጡ።</li>
+            <li>Check phone and email details. · ስልክና ኢሜይል ያረጋግጡ።</li>
+            <li>Make sure the correct documents are attached. · ትክክለኛ ሰነዶች መያያዛቸውን ያረጋግጡ።</li>
+            <li>Fix any errors shown on the page. · በገጹ ላይ የሚታዩ ስህተቶችን ያስተካክሉ።</li>
+          </ul>
           <p>
-            This option is intended to submit the application and prepare
-            the completed application information for printing.
+            Correct mistakes before submitting. If something is unclear,
+            ask for assistance rather than entering incorrect information.
             <br />
-            ይህ አማራጭ ማመልከቻውን ለማስገባትና የተሞላውን መረጃ ለማተም ለማዘጋጀት የተዘጋጀ ነው።
-          </p>
-          <p>
-            Before selecting this option, make sure all information is
-            correct because this is the submission step.
-            <br />
-            ይህ የማስገቢያ ደረጃ ስለሆነ ከመምረጥዎ በፊት ሁሉም መረጃዎች ትክክል መሆናቸውን ያረጋግጡ።
+            ከማስገባትዎ በፊት ስህተቶችን ያስተካክሉ። የማይገባዎት ነገር ካለ
+            የተሳሳተ መረጃ ከማስገባት ይልቅ እርዳታ ይጠይቁ።
           </p>
         </>
       ),
     },
-
     {
-      id: 16,
-      number: "16",
-      title: "Use Print Only · ለማተም ብቻ ይጠቀሙ",
-      text: "Use Print Only when you want a copy without submitting the application. · ማመልከቻውን ሳያስገቡ ቅጂ ለማተም ወይም ለማስቀመጥ Print Only ይጠቀሙ።",
+      id: 7,
+      number: "07",
+      title: "Submit Your Registration · ምዝገባዎን ያስገቡ",
+      text: "Use Submit & Print only when you are ready to send the application. · ማመልከቻውን ለማስገባት ዝግጁ ሲሆኑ Submit & Print ይጠቀሙ።",
       details: (
         <>
           <p>
-            Select <strong>Print Only</strong> if you want to print or save a
-            copy of the completed application without submitting it.
+            When your application is complete, select
+            <strong> Submit & Print</strong> if that is the submission
+            option provided by your form.
             <br />
-            የተሞላውን ማመልከቻ ሳያስገቡ ቅጂ ማተም ወይም ማስቀመጥ ከፈለጉ{" "}
-            <strong>Print Only · ለማተም ብቻ</strong> የሚለውን ይምረጡ።
+            ማመልከቻዎ ሲጠናቀቅ በቅጹ ላይ የቀረበው የማስገቢያ አማራጭ
+            <strong> Submit & Print · አስገባና አትም</strong> ከሆነ ይምረጡት።
           </p>
           <p>
-            <strong>Print Only does not submit your application.</strong>
+            Wait for the website to finish processing and look for a success
+            message or other confirmation. If an error appears, read it and
+            follow the instructions.
             <br />
-            <strong>Print Only ማመልከቻዎን አያስገባም።</strong>
+            ድረ-ገጹ ሂደቱን እስኪያጠናቅቅ ይጠብቁ፤ የስኬት መልዕክት ወይም
+            ሌላ ማረጋገጫ ይፈልጉ። ስህተት ከታየ ያንብቡና መመሪያውን ይከተሉ።
           </p>
           <p>
-            This option can be useful when you want to review the completed
-            information or keep a copy before officially submitting it.
+            Do not repeatedly click the submit button while the first
+            submission is still processing. Check whether the application
+            was submitted before trying again.
             <br />
-            ይህ አማራጭ ማመልከቻዎን በይፋ ከማስገባትዎ በፊት የተሞላውን መረጃ ለመመልከት ወይም ቅጂ ለማስቀመጥ ይጠቅማል።
+            የመጀመሪያው ማስገባት ሂደት እየተካሄደ ሳለ ቁልፉን ደጋግመው
+            አይጫኑ። እንደገና ከመሞከርዎ በፊት ማመልከቻው መግባቱን ያረጋግጡ።
+          </p>
+          <p>
+            Submitting an application does not automatically mean that a
+            visa or permit has been approved.
+            <br />
+            ማመልከቻ ማስገባት ቪዛ ወይም ፈቃድ ተፈቅዷል ማለት አይደለም።
           </p>
         </>
       ),
     },
-
     {
-      id: 17,
-      number: "17",
-      title: "Understand the Difference · ልዩነቱን ይረዱ",
-      text: "Know exactly what happens when you select each printing option. · እያንዳንዱን የማተሚያ አማራጭ ሲመርጡ ምን እንደሚፈጠር በትክክል ይረዱ።",
+      id: 8,
+      number: "08",
+      title: "Print or Save a Copy · ቅጂ ያትሙ ወይም ያስቀምጡ",
+      text: "Understand the difference between Submit & Print and Print Only. · Submit & Print እና Print Only ያላቸውን ልዩነት ይረዱ።",
       details: (
         <>
           <h4>Submit & Print · አስገባና አትም</h4>
           <p>
-            <strong>Submit & Print</strong> is the option to use when you
-            want to submit your completed application and print the
-            application information.
+            Use this option when you are ready to submit your application
+            and the form says this button submits it.
             <br />
-            <strong>Submit & Print</strong> የተሞላውን ማመልከቻ ለማስገባትና የማመልከቻውን መረጃ ለማተም የሚጠቀሙበት አማራጭ ነው።
+            ቅጹ ይህ ቁልፍ ማመልከቻውን እንደሚያስገባ ካመለከተና ለማስገባት
+            ዝግጁ ከሆኑ ይህንን አማራጭ ይጠቀሙ።
           </p>
           <h4>Print Only · ለማተም ብቻ</h4>
           <p>
-            <strong>Print Only</strong> creates a printable copy without
-            submitting the application.
+            Use this option to print or save a copy without submitting,
+            if that is how your application form is designed.
             <br />
-            <strong>Print Only</strong> ማመልከቻውን ሳያስገቡ የሚታተም ቅጂ ያዘጋጃል።
+            ቅጹ እንዲህ ከተዘጋጀ፣ ማመልከቻውን ሳያስገቡ ቅጂ ለማተም ወይም
+            ለማስቀመጥ Print Only ይጠቀሙ።
           </p>
           <p>
-            Always choose the option that matches what you want to do.
+            To save a digital copy, choose Save as PDF in the browser's
+            print window if available.
             <br />
-            ሁልጊዜ ከሚፈልጉት ዓላማ ጋር የሚስማማውን አማራጭ ይምረጡ።
-          </p>
-        </>
-      ),
-    },
-
-    {
-      id: 18,
-      number: "18",
-      title: "Keep Your Application Copy · የማመልከቻዎን ቅጂ ያስቀምጡ",
-      text: "Keep a printed or saved copy of your completed application for your records. · የተሞላውን ማመልከቻ የታተመ ወይም የተቀመጠ ቅጂ ለመዝገብዎ ያስቀምጡ።",
-      details: (
-        <>
-          <p>
-            After printing your application, keep the printed copy or saved
-            copy in a safe place.
-            <br />
-            ማመልከቻዎን ካተሙ በኋላ የታተመውን ወይም የተቀመጠውን ቅጂ በደህና ቦታ ያስቀምጡ።
-          </p>
-          <p>
-            Your copy can help you remember the information that was entered
-            and may be useful for your personal records.
-            <br />
-            ቅጂው ያስገቡትን መረጃ እንዲያስታውሱና ለግል መዝገብዎ እንዲጠቀሙበት ሊረዳ ይችላል።
-          </p>
-          <p>
-            Make sure the printed information is readable before closing or
-            leaving the application.
-            <br />
-            ማመልከቻውን ከመዝጋትዎ ወይም ከመውጣትዎ በፊት የታተመው መረጃ ሊነበብ የሚችል መሆኑን ያረጋግጡ።
+            ዲጂታል ቅጂ ለማስቀመጥ በአሳሹ የማተሚያ መስኮት ውስጥ Save as PDF
+            የሚለው ካለ ይምረጡ።
           </p>
         </>
       ),
     },
-
     {
-      id: 19,
-      number: "19",
-      title: "Check Your Profile · ፕሮፋይልዎን ይመልከቱ",
-      text: "After registration, check your profile to view your application information and status. · ከምዝገባ በኋላ የማመልከቻዎን መረጃና ሁኔታ ለማየት ፕሮፋይልዎን ይመልከቱ።",
+      id: 9,
+      number: "09",
+      title: "Check Your Registration Status · የምዝገባዎን ሁኔታ ያረጋግጡ",
+      text: "Return to the website and use the profile or status feature provided by your system. · ወደ ድረ-ገጹ ተመልሰው የፕሮፋይል ወይም የሁኔታ ማየቻውን ይጠቀሙ።",
       details: (
         <>
           <p>
-            After your application has been processed, you may be able to
-            check your profile through the system.
+            If your e-LMIS website provides a profile or registration-status
+            page, open it using the method provided by the system.
             <br />
-            ማመልከቻዎ ከተስተናገደ በኋላ በስርዓቱ በኩል ፕሮፋይልዎን ማየት ይችላሉ።
-          </p>
-          <p>
-            Review the information displayed on your profile and make sure
-            it corresponds to your application.
-            <br />
-            በፕሮፋይልዎ ላይ የሚታየውን መረጃ ይመልከቱና ከማመልከቻዎ ጋር መጣጣሙን ያረጋግጡ።
-          </p>
-          <p>
-            If a registered visa or application status is displayed, review
-            the information carefully.
-            <br />
-            የተመዘገበ ቪዛ ወይም የማመልከቻ ሁኔታ ከታየ መረጃውን በጥንቃቄ ይመልከቱ።
-          </p>
-        </>
-      ),
-    },
-
-    {
-      id: 20,
-      number: "20",
-      title: "Important Final Reminders · አስፈላጊ የመጨረሻ ማሳሰቢያዎች",
-      text: "Always check your information carefully before completing your application. · ማመልከቻዎን ከማጠናቀቅዎ በፊት መረጃዎን ሁልጊዜ በጥንቃቄ ያረጋግጡ።",
-      details: (
-        <>
-          <p>
-            Before finishing your application, remember these important
-            points:
-            <br />
-            ማመልከቻዎን ከማጠናቀቅዎ በፊት እነዚህን አስፈላጊ ነጥቦች ያስታውሱ፦
+            የe-LMIS ድረ-ገጹ የፕሮፋይል ወይም የምዝገባ ሁኔታ ገጽ ካለው፣
+            ስርዓቱ ባቀረበው መንገድ ይክፈቱት።
           </p>
           <ul>
             <li>
-              <strong>Use your real and correct information. · እውነተኛና ትክክለኛ መረጃዎን ይጠቀሙ።</strong>
+              <strong>Pending</strong> usually means a decision has not yet
+              been recorded.
+              <br />
+              <strong>Pending · በመጠባበቅ ላይ</strong> ብዙውን ጊዜ ውሳኔ
+              ገና አልተመዘገበም ማለት ነው።
             </li>
             <li>
-              <strong>Check your passport information carefully. · የፓስፖርት መረጃዎን በጥንቃቄ ያረጋግጡ።</strong>
+              <strong>Accepted</strong> means the application was accepted
+              within this system.
+              <br />
+              <strong>Accepted · ተቀባይነት አግኝቷል</strong> ማመልከቻው
+              በዚህ ስርዓት መቀበሉን ያመለክታል።
             </li>
             <li>
-              <strong>Check dates and numbers carefully. · ቀናትንና ቁጥሮችን በጥንቃቄ ያረጋግጡ።</strong>
-            </li>
-            <li>
-              <strong>Make sure required fields are completed. · አስፈላጊ መስኮች መሞላታቸውን ያረጋግጡ።</strong>
-            </li>
-            <li>
-              <strong>Upload the correct documents. · ትክክለኛዎቹን ሰነዶች ይጫኑ።</strong>
-            </li>
-            <li>
-              <strong>Review the entire application before submission. · ማመልከቻውን ከማስገባትዎ በፊት በሙሉ ይገምግሙ።</strong>
-            </li>
-            <li>
-              <strong>Use Submit & Print only when you are ready to submit. · ለማስገባት ዝግጁ ሲሆኑ ብቻ Submit & Print ይጠቀሙ።</strong>
-            </li>
-            <li>
-              <strong>Use Print Only when you do not want to submit. · ማመልከቻውን ማስገባት በማይፈልጉበት ጊዜ Print Only ይጠቀሙ።</strong>
+              <strong>Declined</strong> means the application was declined
+              in this system. Check for instructions on what to do next.
+              <br />
+              <strong>Declined · ውድቅ ተደርጓል</strong> ማመልከቻው ውድቅ
+              መደረጉን ያመለክታል። ቀጣይ እርምጃ መመሪያ ካለ ያንብቡ።
             </li>
           </ul>
           <p>
-            Taking a few extra minutes to review your application can help
-            prevent avoidable mistakes.
+            These labels describe the status recorded by your e-LMIS
+            system. They do not by themselves prove that a government visa
+            or work permit has been issued.
             <br />
-            ማመልከቻዎን ለመመርመር ተጨማሪ ጥቂት ደቂቃዎችን መውሰድ ሊከላከሉ የሚችሉ ስህተቶችን ለመቀነስ ይረዳል።
+            እነዚህ ሁኔታዎች በe-LMIS ስርዓት የተመዘገበውን ያመለክታሉ።
+            በራሳቸው የመንግሥት ቪዛ ወይም የሥራ ፈቃድ መሰጠቱን አያረጋግጡም።
+          </p>
+        </>
+      ),
+    },
+    {
+      id: 10,
+      number: "10",
+      title: "If Something Goes Wrong · ችግር ካጋጠመዎት",
+      text: "Know what to do if the form, upload, printing, or submission fails. · ቅጹ፣ ፋይል መጫን፣ ማተም ወይም ማስገባት ካልተሳካ ምን ማድረግ እንዳለብዎ ይወቁ።",
+      details: (
+        <>
+          <p>
+            If you encounter a problem, try these checks before starting
+            the entire application again.
+            <br />
+            ችግር ካጋጠመዎት ማመልከቻውን ከመጀመሪያ እንደገና ከመጀመርዎ በፊት
+            እነዚህን ይፈትሹ።
+          </p>
+          <ul>
+            <li>Check your internet connection. · የኢንተርኔት ግንኙነትዎን ያረጋግጡ።</li>
+            <li>Read the error message carefully. · የስህተት መልዕክቱን በጥንቃቄ ያንብቡ።</li>
+            <li>Check whether the application was already submitted. · ማመልከቻው ከዚህ በፊት መግባቱን ያረጋግጡ።</li>
+            <li>Keep any confirmation or printed copy. · ማንኛውንም ማረጋገጫ ወይም የታተመ ቅጂ ያስቀምጡ።</li>
+            <li>Contact the website administrator if the problem continues. · ችግሩ ከቀጠለ የድረ-ገጹን አስተዳዳሪ ያነጋግሩ።</li>
+          </ul>
+          <p>
+            Never share your password or sensitive personal information
+            with someone you do not trust.
+            <br />
+            የይለፍ ቃልዎን ወይም ሚስጥራዊ የግል መረጃዎን ከማያምኑት ሰው ጋር
+            አያጋሩ።
           </p>
         </>
       ),
@@ -620,13 +341,13 @@ function HelpAndGuidance() {
   return (
     <section className="content-section guides-section" id="guides">
       <div className="section-heading">
-        <h2>Help & Guidance · እገዛና መመሪያ</h2>
-
+        <h2>How Registration Works · ምዝገባ እንዴት ይከናወናል?</h2>
         <p>
-          Follow these step-by-step instructions to complete your application
-          correctly, submit it, and print your application.
+          Follow these practical steps to complete your application, submit
+          it, print a copy, and check the status available in your account.
           <br />
-          ማመልከቻዎን በትክክል ለመሙላት፣ ለማስገባትና ለማተም እነዚህን ደረጃ በደረጃ የተዘጋጁ መመሪያዎች ይከተሉ።
+          ማመልከቻዎን ለመሙላት፣ ለማስገባት፣ ቅጂ ለማተምና በመለያዎ ውስጥ
+          የሚታየውን ሁኔታ ለማየት እነዚህን ተግባራዊ ደረጃዎች ይከተሉ።
         </p>
       </div>
 
@@ -637,7 +358,6 @@ function HelpAndGuidance() {
 
             <div className="guide-content">
               <h3>{guide.title}</h3>
-
               <p>{guide.text}</p>
 
               <button
@@ -659,6 +379,9 @@ function HelpAndGuidance() {
           <div
             className="ministry-modal guide-help-modal"
             onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="guide-modal-title"
           >
             <button
               type="button"
@@ -671,15 +394,16 @@ function HelpAndGuidance() {
 
             <div className="ministry-modal-header">
               <span className="ministry-modal-label">
-                HELP & GUIDANCE · እገዛና መመሪያ · STEP {selectedGuide.number} · ደረጃ {selectedGuide.number}
+                REGISTRATION HELP · የምዝገባ እገዛ · STEP{" "}
+                {selectedGuide.number} · ደረጃ {selectedGuide.number}
               </span>
 
-              <h2>{selectedGuide.title}</h2>
+              <h2 id="guide-modal-title">{selectedGuide.title}</h2>
 
               <p>
-                Follow the instructions below to complete this step correctly.
+                Follow these instructions for this stage of registration.
                 <br />
-                ይህንን ደረጃ በትክክል ለማጠናቀቅ ከታች ያሉትን መመሪያዎች ይከተሉ።
+                በዚህ የምዝገባ ደረጃ እነዚህን መመሪያዎች ይከተሉ።
               </p>
             </div>
 
