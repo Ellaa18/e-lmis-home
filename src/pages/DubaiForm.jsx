@@ -75,8 +75,9 @@ const contactFields = [
 
 function DubaiForm() {
   const [formData, setFormData] = useState(initialForm);
-  const [photoFile, setPhotoFile] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState("");
+ const [photoFile, setPhotoFile] = useState(null);
+const [photoPreview, setPhotoPreview] = useState("");
+const [photoDataUrl, setPhotoDataUrl] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -114,29 +115,47 @@ function DubaiForm() {
     setFormData((previous) => ({ ...previous, [name]: value }));
   };
 
-  const handlePhoto = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+ 
+const handlePhoto = (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setMessage(
-        "እባክዎ የምስል ፋይል ይምረጡ። / Please select an image file."
-      );
-      event.target.value = "";
+  if (!file.type.startsWith("image/")) {
+    setMessage(
+      "እባክዎ የምስል ፋይል ይምረጡ። / Please select an image file."
+    );
+    event.target.value = "";
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    setMessage(
+      "የፎቶው መጠን ከ5MB መብለጥ የለበትም። / Photo size must not exceed 5MB."
+    );
+    event.target.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    if (typeof reader.result !== "string") {
+      setMessage("Could not read the applicant photo. Please try again.");
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setMessage(
-        "የፎቶው መጠን ከ5MB መብለጥ የለበትም። / Photo size must not exceed 5MB."
-      );
-      event.target.value = "";
-      return;
-    }
-
-    setMessage("");
     setPhotoFile(file);
+    setPhotoDataUrl(reader.result);
+    setPhotoPreview(reader.result);
+    setMessage("");
   };
+
+  reader.onerror = () => {
+    setMessage("Could not read the applicant photo. Please try again.");
+  };
+
+  reader.readAsDataURL(file);
+};
 
   const displayValue = (name) => {
     const value = formData[name];
@@ -289,9 +308,20 @@ function DubaiForm() {
         zIndex: "-1",
       });
 
-      const exportPaper = paper.cloneNode(true);
+     
+const exportPaper = paper.cloneNode(true);
 
-      exportPaper.classList.add("dubai-paper-export");
+exportPaper.classList.add("dubai-paper-export");
+
+// Embed the applicant photo directly into the PDF export copy.
+// This avoids relying on a temporary browser object URL.
+const originalPhoto = paper.querySelector(".dubai-paper-photo img");
+const copiedPhoto = exportPaper.querySelector(".dubai-paper-photo img");
+
+if (originalPhoto && copiedPhoto && photoDataUrl) {
+  copiedPhoto.src = photoDataUrl;
+  copiedPhoto.removeAttribute("crossorigin");
+}
 
       Object.assign(exportPaper.style, {
         display: "block",
@@ -407,7 +437,7 @@ function DubaiForm() {
   };
 
   const handleSavePdf = async () => {
-    if (!photoPreview) {
+   if (!photoDataUrl) {
       setMessage(
         "ከPDF በፊት የተመዝጋቢውን ፎቶ ያስገቡ። / Upload the applicant's photo before saving the PDF."
       );
@@ -520,12 +550,12 @@ function DubaiForm() {
         >
           <section className="dubai-photo-upload">
             <div className="dubai-photo-box">
-              {photoPreview ? (
-                <img
-                  src={photoPreview}
-                  alt="የተመዝጋቢው ፎቶ / Applicant photo"
-                />
-              ) : (
+             {photoDataUrl ? (
+  <img
+    src={photoDataUrl}
+    alt="የተመዝጋቢው ፎቶ / Applicant photo"
+  />
+) : (
                 <strong>
                   የተመዝጋቢው
                   <br />
