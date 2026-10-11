@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -6,6 +7,8 @@ import supabase from "../supabase";
 import Logo from "../components/Logo";
 import Footer from "../components/Footer";
 import "../styles/CanadaForm.css";
+
+const PDF_BUCKET = "canada-registration-pdfs";
 
 const initialForm = {
   full_name: "",
@@ -202,26 +205,20 @@ function CanadaForm() {
     );
   };
 
-  // Export the form on a fixed A4 portrait canvas.
-  const downloadPdf = async () => {
-    if (isDownloading) return;
-
+  // Generate the PDF once and return its Blob and filename.
+  // Both the downloaded file and the Supabase upload use this same Blob.
+  const createPdfBlob = async () => {
     if (!showPreview || !previewRef.current) {
-      setMessage("እባክዎ መጀመሪያ Preview ይጫኑ።");
-      return;
+      throw new Error("እባክዎ መጀመሪያ Preview ይጫኑ።");
     }
 
     const paper = previewRef.current.querySelector(".canada-paper");
 
     if (!paper) {
-      setMessage("የፎርሙ ቅድመ እይታ አልተገኘም።");
-      return;
+      throw new Error("የፎርሙ ቅድመ እይታ አልተገኘም።");
     }
 
     let pdfContainer;
-
-    setIsDownloading(true);
-    setMessage("PDF እየተዘጋጀ ነው። እባክዎ ይጠብቁ...");
 
     try {
       // Create a permanent image representation for the PDF.
@@ -301,7 +298,7 @@ function CanadaForm() {
         });
       }
 
-      // CRITICAL FIX: use the image data URL rather than the temporary blob URL.
+      // Use the image data URL rather than the temporary blob URL.
       const photo = pdfPaper.querySelector(".canada-paper-photo img");
 
       if (!photo) {
@@ -352,7 +349,9 @@ function CanadaForm() {
       await waitForImages(pdfPaper);
 
       if (!photo.complete || photo.naturalWidth === 0) {
-        throw new Error("የተመዝጋቢው ፎቶ መጫን አልተቻለም። እባክዎ ደግመው ይሞክሩ።");
+        throw new Error(
+          "የተመዝጋቢው ፎቶ መጫን አልተቻለም። እባክዎ ደግመው ይሞክሩ።"
+        );
       }
 
       // Allow the browser to finish laying out the fixed-size page.
@@ -403,8 +402,46 @@ function CanadaForm() {
         formData.full_name.trim().replace(/[^\p{L}\p{N}_-]+/gu, "_") ||
         "Canada_Application";
 
-      pdf.save(`Canada_Application_${safeName}.pdf`);
+      return {
+        blob: pdf.output("blob"),
+        fileName: `Canada_Application_${safeName}.pdf`,
+      };
+    } finally {
+      pdfContainer?.remove();
+    }
+  };
 
+  // Download the generated PDF Blob.
+  const savePdfToDevice = (blob, fileName) => {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+
+    anchor.href = url;
+    anchor.download = fileName;
+
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  // The Print button only downloads the PDF; it does not register or upload it.
+  const downloadPdf = async () => {
+    if (isDownloading || busy) return;
+
+    if (!showPreview || !previewRef.current) {
+      setMessage("እባክዎ መጀመሪያ Preview ይጫኑ።");
+      return;
+    }
+
+    setIsDownloading(true);
+    setMessage("PDF እየተዘጋጀ ነው። እባክዎ ይጠብቁ...");
+
+    try {
+      const generatedPdf = await createPdfBlob();
+
+      savePdfToDevice(generatedPdf.blob, generatedPdf.fileName);
       setMessage("PDF በተሳካ ሁኔታ ወርዷል።");
     } catch (error) {
       console.error("Canada PDF export error:", error);
@@ -412,7 +449,6 @@ function CanadaForm() {
         error.message || "PDF ማውረድ አልተቻለም። እባክዎ እንደገና ይሞክሩ።"
       );
     } finally {
-      pdfContainer?.remove();
       setIsDownloading(false);
     }
   };
@@ -450,6 +486,26 @@ function CanadaForm() {
     return data.publicUrl;
   };
 
+  // Upload the exact PDF Blob that will be downloaded to the device.
+  const uploadPdf = async (pdfBlob, fileName) => {
+    const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const filePath = `registrations/${Date.now()}-${crypto.randomUUID()}-${safeFileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from(PDF_BUCKET)
+      .upload(filePath, pdfBlob, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: "application/pdf",
+      });
+
+    if (uploadError) {
+      throw new Error(`PDF ወደ Supabase መላክ አልተቻለም፦ ${uploadError.message}`);
+    }
+
+    return filePath;
+  };
+
   const handleRegisterAndPrint = async () => {
     if (busy || isDownloading) return;
 
@@ -471,8 +527,22 @@ function CanadaForm() {
     setBusy(true);
     setMessage("ምዝገባው እየተካሄደ ነው። እባክዎ ይጠብቁ...");
 
+    let uploadedPdfPath = null;
+
     try {
       const photoUrl = await uploadPhoto();
+
+      setMessage("PDF እየተዘጋጀ ነው...");
+
+      // Generate only once so the uploaded and downloaded files are identical.
+      const generatedPdf = await createPdfBlob();
+
+      setMessage("PDF ወደ Supabase እየተላከ ነው...");
+
+      uploadedPdfPath = await uploadPdf(
+        generatedPdf.blob,
+        generatedPdf.fileName
+      );
 
       const payload = {
         ...formData,
@@ -482,19 +552,30 @@ function CanadaForm() {
         date_of_birth: formData.date_of_birth || null,
         form_date: formData.form_date || null,
         profile_photo_url: photoUrl,
+        pdf_path: uploadedPdfPath,
       };
+
+      setMessage("መረጃው ወደ Supabase እየተመዘገበ ነው...");
 
       const { error: insertError } = await supabase
         .from("canada_registrations")
         .insert([payload]);
 
       if (insertError) {
+        // Remove the uploaded PDF if its registration row could not be saved.
+        await supabase.storage
+          .from(PDF_BUCKET)
+          .remove([uploadedPdfPath]);
+
+        uploadedPdfPath = null;
+
         throw new Error(`ምዝገባው አልተሳካም፦ ${insertError.message}`);
       }
 
-      setMessage("ምዝገባው ተሳክቷል። PDF እየተዘጋጀ ነው...");
+      // Download the exact same PDF Blob already uploaded to Supabase.
+      savePdfToDevice(generatedPdf.blob, generatedPdf.fileName);
 
-      await downloadPdf();
+      setMessage("ምዝገባው ተሳክቷል። PDF ተመዝግቦ ወርዷል።");
     } catch (error) {
       console.error("Canada registration error:", error);
       setMessage(

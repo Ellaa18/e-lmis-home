@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -73,11 +74,14 @@ const contactFields = [
   { name: "contact_phone", label: "ስልክ ቁጥር", en: "Phone Number", type: "tel" },
 ];
 
+const PHOTO_BUCKET = "dubai-photos";
+const PDF_BUCKET = "dubai-registration-pdfs";
+
 function DubaiForm() {
   const [formData, setFormData] = useState(initialForm);
- const [photoFile, setPhotoFile] = useState(null);
-const [photoPreview, setPhotoPreview] = useState("");
-const [photoDataUrl, setPhotoDataUrl] = useState("");
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState("");
+  const [photoDataUrl, setPhotoDataUrl] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -115,47 +119,45 @@ const [photoDataUrl, setPhotoDataUrl] = useState("");
     setFormData((previous) => ({ ...previous, [name]: value }));
   };
 
- 
-const handlePhoto = (event) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
+  const handlePhoto = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-  if (!file.type.startsWith("image/")) {
-    setMessage(
-      "እባክዎ የምስል ፋይል ይምረጡ። / Please select an image file."
-    );
-    event.target.value = "";
-    return;
-  }
-
-  if (file.size > 5 * 1024 * 1024) {
-    setMessage(
-      "የፎቶው መጠን ከ5MB መብለጥ የለበትም። / Photo size must not exceed 5MB."
-    );
-    event.target.value = "";
-    return;
-  }
-
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    if (typeof reader.result !== "string") {
-      setMessage("Could not read the applicant photo. Please try again.");
+    if (!file.type.startsWith("image/")) {
+      setMessage(
+        "እባክዎ የምስል ፋይል ይምረጡ። / Please select an image file."
+      );
+      event.target.value = "";
       return;
     }
 
-    setPhotoFile(file);
-    setPhotoDataUrl(reader.result);
-    setPhotoPreview(reader.result);
-    setMessage("");
-  };
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage(
+        "የፎቶው መጠን ከ5MB መብለጥ የለበትም። / Photo size must not exceed 5MB."
+      );
+      event.target.value = "";
+      return;
+    }
 
-  reader.onerror = () => {
-    setMessage("Could not read the applicant photo. Please try again.");
-  };
+    const reader = new FileReader();
 
-  reader.readAsDataURL(file);
-};
+    reader.onload = () => {
+      if (typeof reader.result !== "string") {
+        setMessage("Could not read the applicant photo. Please try again.");
+        return;
+      }
+
+      setPhotoFile(file);
+      setPhotoDataUrl(reader.result);
+      setMessage("");
+    };
+
+    reader.onerror = () => {
+      setMessage("Could not read the applicant photo. Please try again.");
+    };
+
+    reader.readAsDataURL(file);
+  };
 
   const displayValue = (name) => {
     const value = formData[name];
@@ -198,6 +200,12 @@ const handlePhoto = (event) => {
       </label>
     ));
 
+  const makeUniqueName = () =>
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
   const uploadPhoto = async () => {
     if (!photoFile) {
       throw new Error(
@@ -206,15 +214,10 @@ const handlePhoto = (event) => {
     }
 
     const extension = photoFile.name.split(".").pop() || "jpg";
-    const uniqueName =
-      typeof crypto.randomUUID === "function"
-        ? crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-
-    const filePath = `${Date.now()}-${uniqueName}.${extension}`;
+    const filePath = `${makeUniqueName()}.${extension}`;
 
     const { error: uploadError } = await supabase.storage
-      .from("dubai-photos")
+      .from(PHOTO_BUCKET)
       .upload(filePath, photoFile, {
         contentType: photoFile.type,
         upsert: false,
@@ -223,20 +226,48 @@ const handlePhoto = (event) => {
     if (uploadError) throw uploadError;
 
     const { data } = supabase.storage
-      .from("dubai-photos")
+      .from(PHOTO_BUCKET)
       .getPublicUrl(filePath);
 
     if (!data?.publicUrl) {
-      throw new Error(
-        "የፎቶውን አድራሻ ማግኘት አልተቻለም። / Could not get the photo URL."
-      );
+      throw new Error("Could not get the uploaded photo URL.");
     }
 
     return data.publicUrl;
   };
 
-  // Wait until each image has actually loaded and decoded.
-  // This is important for the applicant photo, watermark, and stamp.
+  const uploadRegistrationPdf = async (pdfBlob, filename) => {
+    const filePath = `${Date.now()}-${makeUniqueName()}/${filename}`;
+
+    const { error } = await supabase.storage
+      .from(PDF_BUCKET)
+      .upload(filePath, pdfBlob, {
+        contentType: "application/pdf",
+        upsert: false,
+      });
+
+    if (error) throw error;
+
+    // Store this path in the database. The bucket is private,
+    // so we intentionally do not store a permanent public URL.
+    return filePath;
+  };
+
+  const downloadBlob = (blob, filename) => {
+    const objectUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+
+    anchor.href = objectUrl;
+    anchor.download = filename;
+    anchor.style.display = "none";
+
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+  };
+
   const waitForImages = async (element) => {
     const images = Array.from(element.querySelectorAll("img"));
 
@@ -255,8 +286,6 @@ const handlePhoto = (event) => {
             img.addEventListener("load", finish, { once: true });
             img.addEventListener("error", finish, { once: true });
 
-            // Handle the case where the image finished loading
-            // between the initial check and event registration.
             if (img.complete) finish();
           });
         }
@@ -265,34 +294,27 @@ const handlePhoto = (event) => {
           try {
             await img.decode();
           } catch {
-            // A loaded image can still be captured if decode rejects.
+            // Continue if the browser cannot decode an already loaded image.
           }
         }
       })
     );
   };
 
-  // Always export a fixed A4 portrait paper, never the responsive
-  // screen-sized version of the preview.
-  const downloadPdf = async () => {
-    const paper = document.querySelector(
-      "#dubai-print-area .dubai-paper"
-    );
+  // Generates one PDF Blob. Registration uploads this exact Blob
+  // and downloads the same Blob, so the two PDF files are identical.
+  const createPdf = async () => {
+    const paper = document.querySelector("#dubai-print-area .dubai-paper");
 
     if (!paper) {
       throw new Error("Form preview is not ready. Please open Preview first.");
     }
 
-    setDownloading(true);
-
     let exportHost = null;
 
     try {
-      // Wait for the actual preview images before making the export copy.
       await waitForImages(paper);
 
-      // Create a separate fixed-width copy so phone and desktop layouts
-      // cannot change the downloaded PDF.
       exportHost = document.createElement("div");
       exportHost.className = "dubai-pdf-export-host";
 
@@ -308,20 +330,16 @@ const handlePhoto = (event) => {
         zIndex: "-1",
       });
 
-     
-const exportPaper = paper.cloneNode(true);
+      const exportPaper = paper.cloneNode(true);
+      exportPaper.classList.add("dubai-paper-export");
 
-exportPaper.classList.add("dubai-paper-export");
+      const originalPhoto = paper.querySelector(".dubai-paper-photo img");
+      const copiedPhoto = exportPaper.querySelector(".dubai-paper-photo img");
 
-// Embed the applicant photo directly into the PDF export copy.
-// This avoids relying on a temporary browser object URL.
-const originalPhoto = paper.querySelector(".dubai-paper-photo img");
-const copiedPhoto = exportPaper.querySelector(".dubai-paper-photo img");
-
-if (originalPhoto && copiedPhoto && photoDataUrl) {
-  copiedPhoto.src = photoDataUrl;
-  copiedPhoto.removeAttribute("crossorigin");
-}
+      if (originalPhoto && copiedPhoto && photoDataUrl) {
+        copiedPhoto.src = photoDataUrl;
+        copiedPhoto.removeAttribute("crossorigin");
+      }
 
       Object.assign(exportPaper.style, {
         display: "block",
@@ -352,14 +370,12 @@ if (originalPhoto && copiedPhoto && photoDataUrl) {
       exportHost.appendChild(exportPaper);
       document.body.appendChild(exportHost);
 
-      // Wait for fonts, including Ethiopic fonts, when supported.
       if (document.fonts?.ready) {
         await document.fonts.ready;
       }
 
       await waitForImages(exportPaper);
 
-      // Let the browser lay out the fixed A4 copy before capture.
       await new Promise((resolve) =>
         window.requestAnimationFrame(() =>
           window.requestAnimationFrame(resolve)
@@ -385,14 +401,14 @@ if (originalPhoto && copiedPhoto && photoDataUrl) {
         throw new Error("The form could not be rendered. Please try again.");
       }
 
-      const safeName =
-        (formData.full_name || "Dubai-Registration")
-          .trim()
-          .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "")
-          .replace(/\s+/g, "-")
-          .slice(0, 70) || "Dubai-Registration";
+      const safeName = (formData.full_name || "Dubai-Registration")
+        .trim()
+        .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "")
+        .replace(/\s+/g, "-")
+        .slice(0, 70) || "Dubai-Registration";
 
-      // A4 is always 210 × 297 mm, regardless of screen size.
+      const filename = `${safeName}-Dubai-Registration.pdf`;
+
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -401,10 +417,6 @@ if (originalPhoto && copiedPhoto && photoDataUrl) {
         putOnlyUsedFonts: true,
       });
 
-      const pageWidth = 210;
-      const pageHeight = 297;
-
-      // Fill the fixed A4 page without distortion.
       const imageData = canvas.toDataURL("image/jpeg", 0.98);
 
       pdf.addImage(
@@ -412,21 +424,30 @@ if (originalPhoto && copiedPhoto && photoDataUrl) {
         "JPEG",
         0,
         0,
-        pageWidth,
-        pageHeight,
+        210,
+        297,
         undefined,
         "FAST"
       );
 
-      pdf.save(`${safeName}-Dubai-Registration.pdf`);
+      const pdfBlob = pdf.output("blob");
 
-      return true;
+      return { pdfBlob, filename };
     } finally {
-      // Remove the temporary export copy even if export fails.
       if (exportHost?.parentNode) {
         exportHost.parentNode.removeChild(exportHost);
       }
+    }
+  };
 
+  const downloadPdf = async () => {
+    setDownloading(true);
+
+    try {
+      const result = await createPdf();
+      downloadBlob(result.pdfBlob, result.filename);
+      return result;
+    } finally {
       setDownloading(false);
     }
   };
@@ -437,7 +458,7 @@ if (originalPhoto && copiedPhoto && photoDataUrl) {
   };
 
   const handleSavePdf = async () => {
-   if (!photoDataUrl) {
+    if (!photoDataUrl) {
       setMessage(
         "ከPDF በፊት የተመዝጋቢውን ፎቶ ያስገቡ። / Upload the applicant's photo before saving the PDF."
       );
@@ -471,10 +492,15 @@ if (originalPhoto && copiedPhoto && photoDataUrl) {
     event.preventDefault();
     setMessage("");
 
-    if (!photoFile) {
+    if (!photoFile || !photoDataUrl) {
       setMessage(
         "እባክዎ የተመዝጋቢውን ፎቶ ያስገቡ። / Please upload the applicant's photo."
       );
+      return;
+    }
+
+    if (!formData.full_name.trim()) {
+      setMessage("እባክዎ ሙሉ ስም ያስገቡ። / Please enter the applicant's full name.");
       return;
     }
 
@@ -483,39 +509,75 @@ if (originalPhoto && copiedPhoto && photoDataUrl) {
     let registrationSaved = false;
 
     try {
-      const photoUrl = await uploadPhoto();
+      // Ensure the preview exists before generating the PDF.
+      if (!showPreview) {
+        setShowPreview(true);
+        await new Promise((resolve) => window.setTimeout(resolve, 500));
+      } else {
+        await new Promise((resolve) =>
+          window.requestAnimationFrame(() =>
+            window.requestAnimationFrame(resolve)
+          )
+        );
+      }
 
-      const { error } = await supabase
-        .from("dubai_registrations")
-        .insert([
-          {
-            ...formData,
-            profile_photo_url: photoUrl,
-          },
-        ]);
-
-      if (error) throw error;
-
-      registrationSaved = true;
-      setShowPreview(true);
       setMessage(
-        "ምዝገባው ተቀምጧል። PDF በመዘጋጀት ላይ... / Registration saved. Preparing your PDF..."
+        "ፎቶውን በመጫን ላይ... / Uploading applicant photo..."
       );
 
-      // Give React time to render the preview before PDF export.
-      await new Promise((resolve) => window.setTimeout(resolve, 400));
-      await downloadPdf();
+      const photoUrl = await uploadPhoto();
 
       setMessage(
-        "ምዝገባው በSupabase ተቀምጧል፤ PDF ወርዷል። / Registration saved to Supabase and PDF downloaded successfully."
+        "PDF በመዘጋጀት ላይ... / Generating registration PDF..."
+      );
+
+      // Generate the PDF once. This same Blob will be uploaded and downloaded.
+      const { pdfBlob, filename } = await createPdf();
+
+      setMessage(
+        "PDF ወደ Supabase በመቀመጥ ላይ... / Uploading PDF to Supabase..."
+      );
+
+      const pdfPath = await uploadRegistrationPdf(pdfBlob, filename);
+
+      setMessage(
+        "ምዝገባው በመቀመጥ ላይ... / Saving registration..."
+      );
+
+      const registrationData = {
+        ...formData,
+        age: formData.age === "" ? null : Number(formData.age),
+        weight: formData.weight === "" ? null : Number(formData.weight),
+        height: formData.height === "" ? null : Number(formData.height),
+        date_of_birth: formData.date_of_birth || null,
+        form_date: formData.form_date || null,
+        contact_date_of_birth: formData.contact_date_of_birth || null,
+        profile_photo_url: photoUrl,
+        pdf_path: pdfPath,
+        pdf_url: null,
+      };
+
+      const { error: insertError } = await supabase
+        .from("dubai_registrations")
+        .insert([registrationData]);
+
+      if (insertError) throw insertError;
+
+      registrationSaved = true;
+
+      // Download the exact Blob already uploaded to Supabase.
+      downloadBlob(pdfBlob, filename);
+
+      setMessage(
+        "ምዝገባው በSupabase ተቀምጧል፤ PDF ወርዷል። / Registration saved to Supabase and the same PDF downloaded successfully."
       );
     } catch (error) {
       console.error("Dubai registration/PDF error:", error);
 
       if (registrationSaved) {
         setMessage(
-          `ምዝገባው ተቀምጧል፣ ግን PDF ማውረድ አልተሳካም። / Registration was saved, but the PDF download failed: ${
-            error.message || "Please click Save as PDF to try again."
+          `ምዝገባው ተቀምጧል፣ ግን PDF ማውረድ አልተሳካም። / Registration was saved, but the download failed: ${
+            error.message || "Please try downloading the PDF again."
           }`
         );
       } else {
@@ -550,12 +612,12 @@ if (originalPhoto && copiedPhoto && photoDataUrl) {
         >
           <section className="dubai-photo-upload">
             <div className="dubai-photo-box">
-             {photoDataUrl ? (
-  <img
-    src={photoDataUrl}
-    alt="የተመዝጋቢው ፎቶ / Applicant photo"
-  />
-) : (
+              {photoDataUrl ? (
+                <img
+                  src={photoDataUrl}
+                  alt="የተመዝጋቢው ፎቶ / Applicant photo"
+                />
+              ) : (
                 <strong>
                   የተመዝጋቢው
                   <br />
@@ -572,6 +634,7 @@ if (originalPhoto && copiedPhoto && photoDataUrl) {
                 type="file"
                 accept="image/*"
                 onChange={handlePhoto}
+                disabled={saving || downloading}
               />
             </label>
 
@@ -602,7 +665,7 @@ if (originalPhoto && copiedPhoto && photoDataUrl) {
         </form>
 
         {message && (
-          <p className="dubai-form-message" role="status">
+          <p className="dubai-form-message" role="status" aria-live="polite">
             {message}
           </p>
         )}

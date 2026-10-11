@@ -8,6 +8,7 @@ import Footer from "../components/Footer";
 import "../styles/KuwaitForm.css";
 
 const today = new Date().toISOString().split("T")[0];
+const PDF_BUCKET = "kuwait-registration-pdfs";
 
 const initialForm = {
   full_name: "",
@@ -218,8 +219,20 @@ function KuwaitForm() {
     );
   };
 
-  // Download the complete form preview on one A4 page.
-  const downloadPdf = async () => {
+  const getPdfFileName = () => {
+    const safeName =
+      formData.full_name
+        .trim()
+        .toLowerCase()
+        .replace(/[<>:"/\\|?*\x00-\x1F]/g, "")
+        .replace(/\s+/g, "_")
+        .replace(/^_+|_+$/g, "") || "applicant";
+
+    return `Kuwait_Registration_${safeName}.pdf`;
+  };
+
+  // Generate one PDF Blob. The same Blob is uploaded and downloaded.
+  const createPdfBlob = async () => {
     if (!paperRef.current) {
       throw new Error(
         "The form preview could not be found. Please preview the form again."
@@ -312,6 +325,7 @@ function KuwaitForm() {
         }
 
         let settled = false;
+        let timeoutId;
 
         const finish = (error) => {
           if (settled) return;
@@ -331,7 +345,7 @@ function KuwaitForm() {
             new Error("Could not load the applicant photo for the PDF.")
           );
 
-        const timeoutId = window.setTimeout(() => {
+        timeoutId = window.setTimeout(() => {
           finish(
             new Error("Timed out while loading the applicant photo for the PDF.")
           );
@@ -399,18 +413,55 @@ function KuwaitForm() {
         "FAST"
       );
 
-      const safeName =
-        formData.full_name
-          .trim()
-          .toLowerCase()
-          .replace(/[<>:"/\\|?*\x00-\x1F]/g, "")
-          .replace(/\s+/g, "_")
-          .replace(/^_+|_+$/g, "") || "applicant";
+      // Return the PDF bytes rather than saving a separate PDF copy here.
+      const blob = pdf.output("blob");
 
-      pdf.save(`Kuwait_Registration_${safeName}.pdf`);
+      if (!blob || blob.size === 0) {
+        throw new Error("The PDF was generated empty. Please try again.");
+      }
+
+      return {
+        blob,
+        fileName: getPdfFileName(),
+      };
     } finally {
       pdfContainer.remove();
     }
+  };
+
+  // Download the exact PDF Blob created above.
+  const downloadPdfBlob = (blob, fileName) => {
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = objectUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+  };
+
+  // Upload the exact generated PDF to the Kuwait PDF Storage bucket.
+  const uploadPdf = async (blob, fileName) => {
+    const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const filePath = `registrations/${Date.now()}-${crypto.randomUUID()}-${safeFileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from(PDF_BUCKET)
+      .upload(filePath, blob, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: "application/pdf",
+      });
+
+    if (uploadError) {
+      throw new Error(`PDF upload failed: ${uploadError.message}`);
+    }
+
+    // Store the Storage path in the database. The bucket can remain private.
+    return filePath;
   };
 
   const handleRegisterAndPrint = async () => {
@@ -427,11 +478,28 @@ function KuwaitForm() {
     }
 
     setLoading(true);
-    setMessage("Uploading photo and saving registration...");
+    setMessage("Preparing the PDF and saving the registration...");
     setMessageType("info");
+
+    let uploadedPhotoPath = null;
+    let uploadedPdfPath = null;
+    let registrationSaved = false;
 
     try {
       const photoUrl = await uploadPhoto();
+
+      // Create one PDF. This exact Blob will be stored and downloaded.
+      setMessage("Generating the registration PDF...");
+      const { blob: pdfBlob, fileName } = await createPdfBlob();
+
+      setMessage("Uploading the PDF to Supabase...");
+      uploadedPdfPath = await uploadPdf(pdfBlob, fileName);
+
+      // Recover the photo Storage path from its URL for cleanup if needed.
+      const photoUrlParts = photoUrl.split("/kuwait-applicant-photos/");
+      if (photoUrlParts.length > 1) {
+        uploadedPhotoPath = decodeURIComponent(photoUrlParts[1].split("?")[0]);
+      }
 
       const payload = {
         full_name: formData.full_name.trim(),
@@ -455,8 +523,11 @@ function KuwaitForm() {
         contact_occupation: formData.contact_occupation.trim() || null,
         contact_phone: formData.contact_phone.trim() || null,
         profile_photo_url: photoUrl,
+        pdf_path: uploadedPdfPath,
+        pdf_url: null,
       };
 
+      setMessage("Saving registration to Supabase...");
       const { error: insertError } = await supabase
         .from("kuwait_registrations")
         .insert([payload]);
@@ -465,14 +536,42 @@ function KuwaitForm() {
         throw new Error(`Registration save failed: ${insertError.message}`);
       }
 
-      await downloadPdf();
+      registrationSaved = true;
+
+      // Download the same PDF Blob that was uploaded to Storage.
+      downloadPdfBlob(pdfBlob, fileName);
 
       setMessage(
-        "Registration saved successfully and the PDF has been downloaded."
+        "Registration saved successfully. The same PDF was stored in Supabase and downloaded."
       );
       setMessageType("success");
     } catch (error) {
       console.error("Kuwait registration error:", error);
+
+      // Best-effort cleanup of uploaded files if registration did not save.
+      if (!registrationSaved && uploadedPdfPath) {
+        const { error: cleanupError } = await supabase.storage
+          .from(PDF_BUCKET)
+          .remove([uploadedPdfPath]);
+
+        if (cleanupError) {
+          console.warn("Could not clean up uploaded PDF:", cleanupError);
+        }
+      }
+
+      if (!registrationSaved && uploadedPhotoPath) {
+        const { error: photoCleanupError } = await supabase.storage
+          .from("kuwait-applicant-photos")
+          .remove([uploadedPhotoPath]);
+
+        if (photoCleanupError) {
+          console.warn(
+            "Could not clean up uploaded photo:",
+            photoCleanupError
+          );
+        }
+      }
+
       setMessage(error.message || "An error occurred while saving the form.");
       setMessageType("error");
     } finally {
@@ -494,7 +593,8 @@ function KuwaitForm() {
     setMessageType("info");
 
     try {
-      await downloadPdf();
+      const { blob, fileName } = await createPdfBlob();
+      downloadPdfBlob(blob, fileName);
 
       setMessage("PDF downloaded successfully.");
       setMessageType("success");
@@ -739,7 +839,8 @@ function KuwaitForm() {
 
           <p className="kuwait-privacy-note">
             Your photo is uploaded to the Kuwait applicant photo bucket in
-            Supabase Storage. Its URL is saved with your registration.
+            Supabase Storage. Your registration PDF is also stored in Supabase
+            Storage, and its path is saved with your registration.
           </p>
         </form>
 
