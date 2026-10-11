@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -70,6 +69,7 @@ function CanadaForm() {
   const [showPreview, setShowPreview] = useState(false);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+
   const previewRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -87,11 +87,16 @@ function CanadaForm() {
 
   const updateField = (event) => {
     const { name, value } = event.target;
-    setFormData((previous) => ({ ...previous, [name]: value }));
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
   };
 
   const handlePhotoChange = (event) => {
     const file = event.target.files?.[0];
+
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
@@ -107,6 +112,7 @@ function CanadaForm() {
     }
 
     setPhotoFile(file);
+    setShowPreview(false);
     setMessage("");
   };
 
@@ -127,24 +133,37 @@ function CanadaForm() {
     }, 100);
   };
 
+  // Wait for images to load and decode before rendering the PDF.
   const waitForImages = async (element) => {
+    if (!element) return;
+
     const images = Array.from(element.querySelectorAll("img"));
 
     await Promise.all(
-      images.map((image) => {
-        if (image.complete && image.naturalWidth > 0) {
-          return Promise.resolve();
+      images.map(async (image) => {
+        if (!image.complete || image.naturalWidth === 0) {
+          await new Promise((resolve) => {
+            const finish = () => resolve();
+
+            image.addEventListener("load", finish, { once: true });
+            image.addEventListener("error", finish, { once: true });
+
+            if (image.complete) finish();
+          });
         }
 
-        return new Promise((resolve) => {
-          image.onload = resolve;
-          image.onerror = resolve;
-          setTimeout(resolve, 5000);
-        });
+        if (image.naturalWidth > 0 && typeof image.decode === "function") {
+          try {
+            await image.decode();
+          } catch (error) {
+            console.warn("Could not decode PDF image:", error);
+          }
+        }
       })
     );
   };
 
+  // Export a fixed A4 portrait page, independent of screen width.
   const downloadPdf = async () => {
     if (!showPreview || !previewRef.current) {
       setMessage("እባክዎ መጀመሪያ Preview ይጫኑ።");
@@ -152,70 +171,212 @@ function CanadaForm() {
     }
 
     const paper = previewRef.current.querySelector(".canada-paper");
+
     if (!paper) {
       setMessage("የፎርሙ ቅድመ እይታ አልተገኘም።");
       return;
     }
 
-    await waitForImages(paper);
+    let pdfContainer;
 
-    const canvas = await html2canvas(paper, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: "#ffffff",
-      logging: false,
-      windowWidth: paper.scrollWidth,
-      windowHeight: paper.scrollHeight,
-    });
+    try {
+      setMessage("PDF እየተዘጋጀ ነው...");
 
-    const imageData = canvas.toDataURL("image/jpeg", 0.98);
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-      compress: true,
-    });
+      await waitForImages(paper);
 
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const imageWidth = pageWidth;
-    const imageHeight = (canvas.height * imageWidth) / canvas.width;
+      // Clone the form so the PDF does not use the responsive screen layout.
+      pdfContainer = document.createElement("div");
+      const pdfPaper = paper.cloneNode(true);
 
-    if (imageHeight <= pageHeight) {
+      Object.assign(pdfContainer.style, {
+        position: "fixed",
+        left: "-12000px",
+        top: "0",
+        width: "794px",
+        minWidth: "794px",
+        background: "#ffffff",
+        pointerEvents: "none",
+        zIndex: "-1",
+      });
+
+      Object.assign(pdfPaper.style, {
+        position: "relative",
+        display: "block",
+        boxSizing: "border-box",
+        width: "794px",
+        minWidth: "794px",
+        maxWidth: "794px",
+        height: "1123px",
+        minHeight: "1123px",
+        maxHeight: "1123px",
+        margin: "0",
+        padding: "40px 45px 32px",
+        border: "0",
+        borderRadius: "0",
+        boxShadow: "none",
+        background: "#ffffff",
+        overflow: "hidden",
+        transform: "none",
+        flex: "none",
+      });
+
+      // Keep the PDF's contents laid out like a full-width paper.
+      const paperTop = pdfPaper.querySelector(".canada-paper-top");
+      if (paperTop) {
+        Object.assign(paperTop.style, {
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          width: "100%",
+        });
+      }
+
+      const paperFields = pdfPaper.querySelectorAll(".canada-paper-fields");
+      paperFields.forEach((fields) => {
+        Object.assign(fields.style, {
+          display: "grid",
+          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+          columnGap: "22px",
+          rowGap: "9px",
+          width: "100%",
+        });
+      });
+
+      const paperPhoto = pdfPaper.querySelector(".canada-paper-photo");
+      if (paperPhoto) {
+        Object.assign(paperPhoto.style, {
+          display: "flex",
+          flex: "0 0 132px",
+          width: "132px",
+          height: "162px",
+          overflow: "hidden",
+        });
+      }
+
+      const photo = pdfPaper.querySelector(".canada-paper-photo img");
+
+      if (photo) {
+        const originalPhoto = paper.querySelector(
+          ".canada-paper-photo img"
+        );
+
+        const photoSource =
+          originalPhoto?.currentSrc || originalPhoto?.src || photoPreview;
+
+        if (!photoSource) {
+          throw new Error("የተመዝጋቢው ፎቶ አልተገኘም።");
+        }
+
+        photo.src = photoSource;
+
+        Object.assign(photo.style, {
+          display: "block",
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        });
+      } else {
+        throw new Error("የተመዝጋቢው ፎቶ በፎርሙ ውስጥ አልተገኘም።");
+      }
+
+      const watermark = pdfPaper.querySelector(".canada-paper-watermark");
+      if (watermark) {
+        Object.assign(watermark.style, {
+          position: "absolute",
+          display: "block",
+          maxWidth: "none",
+        });
+      }
+
+      const stamp = pdfPaper.querySelector(".canada-paper-stamp img");
+      if (stamp) {
+        Object.assign(stamp.style, {
+          display: "block",
+          maxWidth: "100%",
+          objectFit: "contain",
+        });
+      }
+
+      pdfContainer.appendChild(pdfPaper);
+      document.body.appendChild(pdfContainer);
+
+      await waitForImages(pdfPaper);
+
+      // Give the browser a chance to apply the fixed-width layout.
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve))
+      );
+
+      const canvas = await html2canvas(pdfPaper, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: "#ffffff",
+        logging: false,
+        width: 794,
+        height: 1123,
+        windowWidth: 1200,
+        windowHeight: 1200,
+        scrollX: 0,
+        scrollY: 0,
+      });
+
+      const imageData = canvas.toDataURL("image/jpeg", 0.98);
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
+
+      // Standard A4 portrait: 210 × 297 mm.
+      // A small margin keeps the page edges clean.
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 4;
+
+      const availableWidth = pageWidth - margin * 2;
+      const availableHeight = pageHeight - margin * 2;
+
+      const ratio = Math.min(
+        availableWidth / canvas.width,
+        availableHeight / canvas.height
+      );
+
+      const imageWidth = canvas.width * ratio;
+      const imageHeight = canvas.height * ratio;
+
+      const x = (pageWidth - imageWidth) / 2;
+      const y = (pageHeight - imageHeight) / 2;
+
       pdf.addImage(
         imageData,
         "JPEG",
-        0,
-        0,
+        x,
+        y,
         imageWidth,
         imageHeight,
         undefined,
         "FAST"
       );
-    } else {
-      // Keep the entire form on one A4 page.
-      const scale = pageHeight / imageHeight;
-      const fittedWidth = imageWidth * scale;
-      const left = (pageWidth - fittedWidth) / 2;
 
-      pdf.addImage(
-        imageData,
-        "JPEG",
-        left,
-        0,
-        fittedWidth,
-        pageHeight,
-        undefined,
-        "FAST"
+      const safeName =
+        formData.full_name.trim().replace(/[^\p{L}\p{N}_-]+/gu, "_") ||
+        "Canada_Application";
+
+      pdf.save(`Canada_Application_${safeName}.pdf`);
+
+      setMessage("PDF በተሳካ ሁኔታ ወርዷል።");
+    } catch (error) {
+      console.error("Canada PDF export error:", error);
+      setMessage(
+        error.message || "PDF ማውረድ አልተቻለም። እባክዎ እንደገና ይሞክሩ።"
       );
+    } finally {
+      pdfContainer?.remove();
     }
-
-    const safeName =
-      formData.full_name.trim().replace(/[^\p{L}\p{N}_-]+/gu, "_") ||
-      "Canada_Application";
-
-    pdf.save(`Canada_Application_${safeName}.pdf`);
   };
 
   const uploadPhoto = async () => {
@@ -252,6 +413,8 @@ function CanadaForm() {
   };
 
   const handleRegisterAndPrint = async () => {
+    if (busy) return;
+
     if (!formData.full_name.trim()) {
       setMessage("እባክዎ የተመዝጋቢውን ሙሉ ስም ያስገቡ።");
       return;
@@ -293,8 +456,8 @@ function CanadaForm() {
 
       setMessage("ምዝገባው ተሳክቷል። PDF እየተዘጋጀ ነው...");
       await downloadPdf();
-      setMessage("ምዝገባው ተሳክቷል፤ PDF ወርዷል።");
     } catch (error) {
+      console.error("Canada registration error:", error);
       setMessage(error.message || "ስህተት ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።");
     } finally {
       setBusy(false);
@@ -308,7 +471,10 @@ function CanadaForm() {
 
   const renderInput = (field) => (
     <label className="canada-field" key={field.name}>
-      <span>{field.label}{field.required ? " *" : ""}</span>
+      <span>
+        {field.label}
+        {field.required ? " *" : ""}
+      </span>
 
       {field.type === "select" ? (
         <select
@@ -362,6 +528,7 @@ function CanadaForm() {
             <label className="canada-upload-button" htmlFor="canada-photo">
               Upload Profile Photo
             </label>
+
             <input
               ref={fileInputRef}
               id="canada-photo"
@@ -370,6 +537,7 @@ function CanadaForm() {
               onChange={handlePhotoChange}
               hidden
             />
+
             <p>የፎቶ መጠን ከ5MB በታች መሆን አለበት።</p>
           </div>
         </div>
@@ -433,7 +601,6 @@ function CanadaForm() {
               </div>
 
               <div className="canada-paper-title">
-                
                 <p>ቀን፦ {displayValue(formData.form_date)}</p>
               </div>
             </div>
@@ -455,29 +622,19 @@ function CanadaForm() {
               </p>
             </div>
 
-            
-              <h3>1. የተመዝጋቢው ማንነት</h3>
-              <div className="canada-paper-fields">
-                {applicantFields.map((field) =>
-                  paperField(field.label, formData[field.name], field.name)
-                )}
-              </div>
-            
+            <h3>1. የተመዝጋቢው ማንነት</h3>
+            <div className="canada-paper-fields">
+              {applicantFields.map((field) =>
+                paperField(field.label, formData[field.name], field.name)
+              )}
+            </div>
 
-            
-              <h3>2. የቅርብ ተጠሪ ወይም ተያዥ</h3>
-              <div className="canada-paper-fields">
-                {contactFields.map((field) =>
-                  paperField(
-                    field.label,
-                    formData[field.name],
-                    field.name
-                  )
-                )}
-              </div>
-           
-
-            
+            <h3>2. የቅርብ ተጠሪ ወይም ተያዥ</h3>
+            <div className="canada-paper-fields">
+              {contactFields.map((field) =>
+                paperField(field.label, formData[field.name], field.name)
+              )}
+            </div>
 
             <div className="canada-paper-stamp">
               <img
@@ -493,10 +650,12 @@ function CanadaForm() {
 
             <div className="canada-paper-footer">
               <hr />
+
               <div className="canada-paper-footer-row">
                 <span>ፋክስ፦ +251116671566</span>
                 <span>አዲስ አበባ፣ ኢትዮጵያ</span>
               </div>
+
               <div className="canada-paper-footer-row">
                 <span>e-mail: info@elmis.gov.et</span>
                 <span>web: www.elmis.gov.et</span>
