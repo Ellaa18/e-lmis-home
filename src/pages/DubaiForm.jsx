@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -217,44 +216,144 @@ function DubaiForm() {
     return data.publicUrl;
   };
 
-  // Wait for the applicant photo, watermark, and stamp to load.
+  // Wait until each image has actually loaded and decoded.
+  // This is important for the applicant photo, watermark, and stamp.
   const waitForImages = async (element) => {
     const images = Array.from(element.querySelectorAll("img"));
 
     await Promise.all(
-      images.map(async (image) => {
-        if (image.complete && image.naturalWidth > 0) return;
+      images.map(async (img) => {
+        if (!img.getAttribute("src")) return;
 
-        if (typeof image.decode === "function") {
-          try {
-            await image.decode();
-            return;
-          } catch {
-            // Continue to the load/error fallback.
-          }
+        if (!img.complete || img.naturalWidth === 0) {
+          await new Promise((resolve) => {
+            const finish = () => {
+              img.removeEventListener("load", finish);
+              img.removeEventListener("error", finish);
+              resolve();
+            };
+
+            img.addEventListener("load", finish, { once: true });
+            img.addEventListener("error", finish, { once: true });
+
+            // Handle the case where the image finished loading
+            // between the initial check and event registration.
+            if (img.complete) finish();
+          });
         }
 
-        await new Promise((resolve) => {
-          image.onload = resolve;
-          image.onerror = resolve;
-        });
+        if (img.naturalWidth > 0 && typeof img.decode === "function") {
+          try {
+            await img.decode();
+          } catch {
+            // A loaded image can still be captured if decode rejects.
+          }
+        }
       })
     );
   };
 
-  // Export the entire form onto ONE A4 portrait page.
+  // Always export a fixed A4 portrait paper, never the responsive
+  // screen-sized version of the preview.
   const downloadPdf = async () => {
-    const printArea = document.getElementById("dubai-print-area");
-    const paper = printArea?.querySelector(".dubai-paper");
+    const paper = document.querySelector(
+      "#dubai-print-area .dubai-paper"
+    );
 
-    if (!printArea || !paper) {
+    if (!paper) {
       throw new Error("Form preview is not ready. Please open Preview first.");
     }
 
     setDownloading(true);
 
+    let exportHost = null;
+
     try {
+      // Wait for the actual preview images before making the export copy.
       await waitForImages(paper);
+
+      // Create a separate fixed-width copy so phone and desktop layouts
+      // cannot change the downloaded PDF.
+      exportHost = document.createElement("div");
+      exportHost.className = "dubai-pdf-export-host";
+
+      Object.assign(exportHost.style, {
+        position: "fixed",
+        left: "-20000px",
+        top: "0",
+        width: "210mm",
+        height: "297mm",
+        overflow: "hidden",
+        background: "#ffffff",
+        pointerEvents: "none",
+        zIndex: "-1",
+      });
+
+      const exportPaper = paper.cloneNode(true);
+
+      exportPaper.classList.add("dubai-paper-export");
+
+      Object.assign(exportPaper.style, {
+        display: "block",
+        position: "relative",
+        boxSizing: "border-box",
+        width: "210mm",
+        minWidth: "210mm",
+        maxWidth: "none",
+        height: "297mm",
+        minHeight: "297mm",
+        maxHeight: "297mm",
+        margin: "0",
+        padding: "15mm 16mm 18mm",
+        overflow: "hidden",
+        border: "none",
+        borderRadius: "0",
+        boxShadow: "none",
+        transform: "none",
+        background: "#eff0f0",
+        color: "#111111",
+        fontFamily:
+          '"Noto Sans Ethiopic", "Nyala", "Abyssinica SIL", Arial, sans-serif',
+        fontSize: "12pt",
+        fontWeight: "900",
+        lineHeight: "1.8",
+      });
+
+      exportHost.appendChild(exportPaper);
+      document.body.appendChild(exportHost);
+
+      // Wait for fonts, including Ethiopic fonts, when supported.
+      if (document.fonts?.ready) {
+        await document.fonts.ready;
+      }
+
+      await waitForImages(exportPaper);
+
+      // Let the browser lay out the fixed A4 copy before capture.
+      await new Promise((resolve) =>
+        window.requestAnimationFrame(() =>
+          window.requestAnimationFrame(resolve)
+        )
+      );
+
+      const canvas = await html2canvas(exportPaper, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: "#eff0f0",
+        logging: false,
+        imageTimeout: 15000,
+        width: exportPaper.scrollWidth,
+        height: exportPaper.scrollHeight,
+        windowWidth: 1200,
+        windowHeight: 1600,
+        scrollX: 0,
+        scrollY: 0,
+      });
+
+      if (!canvas.width || !canvas.height) {
+        throw new Error("The form could not be rendered. Please try again.");
+      }
 
       const safeName =
         (formData.full_name || "Dubai-Registration")
@@ -263,54 +362,28 @@ function DubaiForm() {
           .replace(/\s+/g, "-")
           .slice(0, 70) || "Dubai-Registration";
 
-      // Capture the complete paper as one canvas image.
-      const canvas = await html2canvas(paper, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: "#ffffff",
-        scrollX: 0,
-        scrollY: 0,
-        logging: false,
-      });
-
-      if (!canvas.width || !canvas.height) {
-        throw new Error("The form could not be rendered. Please try again.");
-      }
-
-      // Create a new PDF with exactly one A4 portrait page.
+      // A4 is always 210 × 297 mm, regardless of screen size.
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
         format: "a4",
         compress: true,
+        putOnlyUsedFonts: true,
       });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
+      const pageWidth = 210;
+      const pageHeight = 297;
 
-      // Fit the complete form inside the page without cropping it.
-      const scale = Math.min(
-        pageWidth / canvas.width,
-        pageHeight / canvas.height
-      );
-
-      const imageWidth = canvas.width * scale;
-      const imageHeight = canvas.height * scale;
-
-      // Center the image on the page.
-      const x = (pageWidth - imageWidth) / 2;
-      const y = (pageHeight - imageHeight) / 2;
-
+      // Fill the fixed A4 page without distortion.
       const imageData = canvas.toDataURL("image/jpeg", 0.98);
 
       pdf.addImage(
         imageData,
         "JPEG",
-        x,
-        y,
-        imageWidth,
-        imageHeight,
+        0,
+        0,
+        pageWidth,
+        pageHeight,
         undefined,
         "FAST"
       );
@@ -319,6 +392,11 @@ function DubaiForm() {
 
       return true;
     } finally {
+      // Remove the temporary export copy even if export fails.
+      if (exportHost?.parentNode) {
+        exportHost.parentNode.removeChild(exportHost);
+      }
+
       setDownloading(false);
     }
   };
@@ -394,7 +472,7 @@ function DubaiForm() {
         "ምዝገባው ተቀምጧል። PDF በመዘጋጀት ላይ... / Registration saved. Preparing your PDF..."
       );
 
-      // Allow React to render the preview before exporting it.
+      // Give React time to render the preview before PDF export.
       await new Promise((resolve) => window.setTimeout(resolve, 400));
       await downloadPdf();
 
@@ -430,7 +508,6 @@ function DubaiForm() {
 
       <section className="dubai-form-card">
         <header className="dubai-form-heading">
-          
           <h1>የዱባይ ምዝገባ ፎርም</h1>
           <h2>Dubai Registration Form</h2>
           <p>እባክዎ ሁሉንም መረጃ በትክክል ይሙሉ።</p>
@@ -492,8 +569,6 @@ function DubaiForm() {
               {renderFields(contactFields)}
             </div>
           </section>
-
-          
         </form>
 
         {message && (
@@ -509,7 +584,7 @@ function DubaiForm() {
             onClick={handlePreview}
             disabled={saving || downloading}
           >
-           Preview / የሞሉትን ፎርም ይመልከቱ
+            Preview / የሞሉትን ፎርም ይመልከቱ
           </button>
         </div>
       </section>
@@ -525,8 +600,8 @@ function DubaiForm() {
               <h2>የፎርሙ ቅድመ እይታ / Form Preview</h2>
               <p>ይህ ወረቀት በሚታየው ቅርጽ ይቀመጣል።</p>
               <p>
-                This document will be downloaded as a PDF in the layout shown
-                below.
+                This document will be downloaded as a fixed A4 PDF,
+                regardless of your screen size.
               </p>
             </div>
           </div>
@@ -558,12 +633,11 @@ function DubaiForm() {
 
                   <div className="dubai-paper-date">
                     <strong>
-                      ቀን / Date፦ {formData.form_date || "........................"}
+                      ቀን / Date፦{" "}
+                      {formData.form_date || "........................"}
                     </strong>
                   </div>
                 </div>
-
-                
 
                 <p className="dubai-paper-intro">
                   በቅድሚያ የማክበር ሰላምታችንን እያቀረብን የዱባይ
@@ -582,7 +656,6 @@ function DubaiForm() {
 
                 <h3 className="dubai-paper-section-title">
                   1. የተመዝጋቢው ማንነት
-                  
                 </h3>
 
                 <div className="dubai-paper-fields">
@@ -598,7 +671,6 @@ function DubaiForm() {
 
                 <h3 className="dubai-paper-section-title">
                   2. የቅርብ ተጠሪ ወይም ተያዥ
-                 
                 </h3>
 
                 <div className="dubai-paper-fields">
@@ -613,7 +685,6 @@ function DubaiForm() {
                 </div>
 
                 <div className="dubai-paper-signature">
-                  
                   <span>{displayValue("applicant_signature")}</span>
                 </div>
 
@@ -666,9 +737,9 @@ function DubaiForm() {
           </div>
 
           <p className="dubai-print-note">
-            PDF ፋይሉ  የእርሶ ፋይል ውስጥ ይቀመጣል።
+            PDF ፋይሉ የእርሶ ፋይል ውስጥ ይቀመጣል။
             <br />
-            The PDF will be downloaded to your  folder.
+            The PDF will be downloaded to your Downloads folder.
           </p>
         </section>
       )}

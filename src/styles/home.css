@@ -813,7 +813,7 @@
   text-align: center;
   cursor: pointer;
   -webkit-text-security: disc;
-  text-security: disc;
+  
 }
 
 .admin-secret-input:focus {
