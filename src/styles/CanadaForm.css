@@ -135,24 +135,61 @@
 }
 
 .canada-form-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin: 20px 0 0;
   padding: 12px 14px;
   border-radius: 7px;
   background: #eff6ff;
   color: #174f91;
   overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+
+.canada-spinner {
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  box-sizing: border-box;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: canada-spin 0.7s linear infinite;
+  vertical-align: middle;
+}
+
+.canada-form-message .canada-spinner {
+  width: 19px;
+  height: 19px;
+  flex-basis: 19px;
+  border-color: rgba(23, 79, 145, 0.2);
+  border-top-color: #174f91;
+}
+
+@keyframes canada-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .canada-form-actions,
 .canada-preview-actions {
   display: flex;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 26px;
 }
 
 .canada-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
   min-height: 44px;
   padding: 12px 24px;
   border: 0;
@@ -170,7 +207,7 @@
 
 .canada-button:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .canada-register-button {
@@ -193,10 +230,7 @@
   color: #173d70;
 }
 
-/*
-  A4 portrait dimensions.
-  The paper has a fixed width and does not shrink on phones.
-*/
+/* Fixed A4 portrait paper; it does not shrink on narrow screens. */
 .canada-paper {
   position: relative;
   isolation: isolate;
@@ -294,10 +328,11 @@
   margin: 0 0 4mm;
 }
 
+/* Section headings have no horizontal line. */
 .canada-paper h3 {
   margin: 4mm 0 3mm;
-  padding-bottom: 1.5mm;
-  border-bottom: 1px solid #777;
+  padding-bottom: 0;
+  border-bottom: 0;
   color: #111;
   font-size: 11pt;
   font-weight: 700;
@@ -363,7 +398,9 @@
   font-size: 9.5pt;
 }
 
+/* The only horizontal line on the paper: after the motto. */
 .canada-paper-footer hr {
+  display: block;
   height: 0;
   margin: 0 0 3mm;
   border: 0;
@@ -425,7 +462,7 @@
   }
 }
 
-/* Keep the A4 preview intact on narrow screens */
+/* Keep the A4 preview intact on narrow screens. */
 @media (max-width: 650px) {
   .canada-form-page {
     padding: 14px 8px 0;

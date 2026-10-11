@@ -62,6 +62,31 @@ const contactFields = [
   { name: "contact_phone", label: "ስልክ ቁጥር", type: "tel" },
 ];
 
+// Convert the original uploaded file into a data URL.
+// This avoids relying on a temporary blob URL when generating the PDF.
+const fileToDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    if (!file) {
+      reject(new Error("እባክዎ የተመዝጋቢውን ፎቶ ይጫኑ።"));
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("የተመዝጋቢውን ፎቶ ማንበብ አልተቻለም።"));
+      }
+    };
+
+    reader.onerror = () =>
+      reject(new Error("የተመዝጋቢውን ፎቶ ማንበብ አልተቻለም።"));
+
+    reader.readAsDataURL(file);
+  });
+
 function CanadaForm() {
   const [formData, setFormData] = useState(initialForm);
   const [photoFile, setPhotoFile] = useState(null);
@@ -69,6 +94,7 @@ function CanadaForm() {
   const [showPreview, setShowPreview] = useState(false);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const previewRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -133,7 +159,7 @@ function CanadaForm() {
     }, 100);
   };
 
-  // Wait for images to load and decode before rendering the PDF.
+  // Wait until images are genuinely loaded, then decode them.
   const waitForImages = async (element) => {
     if (!element) return;
 
@@ -143,12 +169,25 @@ function CanadaForm() {
       images.map(async (image) => {
         if (!image.complete || image.naturalWidth === 0) {
           await new Promise((resolve) => {
-            const finish = () => resolve();
+            let finished = false;
+
+            const finish = () => {
+              if (finished) return;
+              finished = true;
+              image.removeEventListener("load", finish);
+              image.removeEventListener("error", finish);
+              clearTimeout(timeoutId);
+              resolve();
+            };
+
+            const timeoutId = setTimeout(finish, 10000);
 
             image.addEventListener("load", finish, { once: true });
             image.addEventListener("error", finish, { once: true });
 
-            if (image.complete) finish();
+            if (image.complete && image.naturalWidth > 0) {
+              finish();
+            }
           });
         }
 
@@ -163,8 +202,10 @@ function CanadaForm() {
     );
   };
 
-  // Export a fixed A4 portrait page, independent of screen width.
+  // Export the form on a fixed A4 portrait canvas.
   const downloadPdf = async () => {
+    if (isDownloading) return;
+
     if (!showPreview || !previewRef.current) {
       setMessage("እባክዎ መጀመሪያ Preview ይጫኑ።");
       return;
@@ -179,12 +220,15 @@ function CanadaForm() {
 
     let pdfContainer;
 
+    setIsDownloading(true);
+    setMessage("PDF እየተዘጋጀ ነው። እባክዎ ይጠብቁ...");
+
     try {
-      setMessage("PDF እየተዘጋጀ ነው...");
+      // Create a permanent image representation for the PDF.
+      const photoDataUrl = await fileToDataUrl(photoFile);
 
       await waitForImages(paper);
 
-      // Clone the form so the PDF does not use the responsive screen layout.
       pdfContainer = document.createElement("div");
       const pdfPaper = paper.cloneNode(true);
 
@@ -194,9 +238,11 @@ function CanadaForm() {
         top: "0",
         width: "794px",
         minWidth: "794px",
+        height: "1123px",
         background: "#ffffff",
         pointerEvents: "none",
         zIndex: "-1",
+        overflow: "hidden",
       });
 
       Object.assign(pdfPaper.style, {
@@ -220,8 +266,19 @@ function CanadaForm() {
         flex: "none",
       });
 
-      // Keep the PDF's contents laid out like a full-width paper.
+      // Preserve two-column paper fields, regardless of screen width.
+      pdfPaper.querySelectorAll(".canada-paper-fields").forEach((fields) => {
+        Object.assign(fields.style, {
+          display: "grid",
+          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+          columnGap: "22px",
+          rowGap: "9px",
+          width: "100%",
+        });
+      });
+
       const paperTop = pdfPaper.querySelector(".canada-paper-top");
+
       if (paperTop) {
         Object.assign(paperTop.style, {
           display: "flex",
@@ -232,18 +289,8 @@ function CanadaForm() {
         });
       }
 
-      const paperFields = pdfPaper.querySelectorAll(".canada-paper-fields");
-      paperFields.forEach((fields) => {
-        Object.assign(fields.style, {
-          display: "grid",
-          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-          columnGap: "22px",
-          rowGap: "9px",
-          width: "100%",
-        });
-      });
-
       const paperPhoto = pdfPaper.querySelector(".canada-paper-photo");
+
       if (paperPhoto) {
         Object.assign(paperPhoto.style, {
           display: "flex",
@@ -254,33 +301,27 @@ function CanadaForm() {
         });
       }
 
+      // CRITICAL FIX: use the image data URL rather than the temporary blob URL.
       const photo = pdfPaper.querySelector(".canada-paper-photo img");
 
-      if (photo) {
-        const originalPhoto = paper.querySelector(
-          ".canada-paper-photo img"
-        );
-
-        const photoSource =
-          originalPhoto?.currentSrc || originalPhoto?.src || photoPreview;
-
-        if (!photoSource) {
-          throw new Error("የተመዝጋቢው ፎቶ አልተገኘም።");
-        }
-
-        photo.src = photoSource;
-
-        Object.assign(photo.style, {
-          display: "block",
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        });
-      } else {
+      if (!photo) {
         throw new Error("የተመዝጋቢው ፎቶ በፎርሙ ውስጥ አልተገኘም።");
       }
 
+      photo.removeAttribute("srcset");
+      photo.src = photoDataUrl;
+      photo.loading = "eager";
+
+      Object.assign(photo.style, {
+        display: "block",
+        width: "100%",
+        height: "100%",
+        maxWidth: "none",
+        objectFit: "cover",
+      });
+
       const watermark = pdfPaper.querySelector(".canada-paper-watermark");
+
       if (watermark) {
         Object.assign(watermark.style, {
           position: "absolute",
@@ -290,6 +331,7 @@ function CanadaForm() {
       }
 
       const stamp = pdfPaper.querySelector(".canada-paper-stamp img");
+
       if (stamp) {
         Object.assign(stamp.style, {
           display: "block",
@@ -298,12 +340,22 @@ function CanadaForm() {
         });
       }
 
+      // Remove section-heading borders; the footer rule after the motto remains.
+      pdfPaper.querySelectorAll(".canada-paper h3").forEach((heading) => {
+        heading.style.borderBottom = "0";
+        heading.style.paddingBottom = "0";
+      });
+
       pdfContainer.appendChild(pdfPaper);
       document.body.appendChild(pdfContainer);
 
       await waitForImages(pdfPaper);
 
-      // Give the browser a chance to apply the fixed-width layout.
+      if (!photo.complete || photo.naturalWidth === 0) {
+        throw new Error("የተመዝጋቢው ፎቶ መጫን አልተቻለም። እባክዎ ደግመው ይሞክሩ።");
+      }
+
+      // Allow the browser to finish laying out the fixed-size page.
       await new Promise((resolve) =>
         requestAnimationFrame(() => requestAnimationFrame(resolve))
       );
@@ -331,33 +383,18 @@ function CanadaForm() {
         compress: true,
       });
 
-      // Standard A4 portrait: 210 × 297 mm.
-      // A small margin keeps the page edges clean.
+      // Fill a standard A4 portrait page with a small, even margin.
       const pageWidth = 210;
       const pageHeight = 297;
       const margin = 4;
 
-      const availableWidth = pageWidth - margin * 2;
-      const availableHeight = pageHeight - margin * 2;
-
-      const ratio = Math.min(
-        availableWidth / canvas.width,
-        availableHeight / canvas.height
-      );
-
-      const imageWidth = canvas.width * ratio;
-      const imageHeight = canvas.height * ratio;
-
-      const x = (pageWidth - imageWidth) / 2;
-      const y = (pageHeight - imageHeight) / 2;
-
       pdf.addImage(
         imageData,
         "JPEG",
-        x,
-        y,
-        imageWidth,
-        imageHeight,
+        margin,
+        margin,
+        pageWidth - margin * 2,
+        pageHeight - margin * 2,
         undefined,
         "FAST"
       );
@@ -376,6 +413,7 @@ function CanadaForm() {
       );
     } finally {
       pdfContainer?.remove();
+      setIsDownloading(false);
     }
   };
 
@@ -413,7 +451,7 @@ function CanadaForm() {
   };
 
   const handleRegisterAndPrint = async () => {
-    if (busy) return;
+    if (busy || isDownloading) return;
 
     if (!formData.full_name.trim()) {
       setMessage("እባክዎ የተመዝጋቢውን ሙሉ ስም ያስገቡ።");
@@ -431,7 +469,7 @@ function CanadaForm() {
     }
 
     setBusy(true);
-    setMessage("መረጃው እየተመዘገበ ነው...");
+    setMessage("ምዝገባው እየተካሄደ ነው። እባክዎ ይጠብቁ...");
 
     try {
       const photoUrl = await uploadPhoto();
@@ -455,10 +493,13 @@ function CanadaForm() {
       }
 
       setMessage("ምዝገባው ተሳክቷል። PDF እየተዘጋጀ ነው...");
+
       await downloadPdf();
     } catch (error) {
       console.error("Canada registration error:", error);
-      setMessage(error.message || "ስህተት ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።");
+      setMessage(
+        error.message || "ስህተት ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።"
+      );
     } finally {
       setBusy(false);
     }
@@ -505,6 +546,8 @@ function CanadaForm() {
       <strong>{label}፦</strong> {displayValue(value)}
     </div>
   );
+
+  const isBusy = busy || isDownloading;
 
   return (
     <div className="canada-form-page">
@@ -557,7 +600,8 @@ function CanadaForm() {
         </section>
 
         {message && (
-          <p className="canada-form-message" role="status">
+          <p className="canada-form-message" role="status" aria-live="polite">
+            {isBusy && <span className="canada-spinner" aria-hidden="true" />}
             {message}
           </p>
         )}
@@ -567,7 +611,7 @@ function CanadaForm() {
             type="button"
             className="canada-button canada-preview-button"
             onClick={handlePreview}
-            disabled={busy}
+            disabled={isBusy}
           >
             Preview
           </button>
@@ -668,18 +712,37 @@ function CanadaForm() {
               type="button"
               className="canada-button"
               onClick={downloadPdf}
-              disabled={busy}
+              disabled={isBusy}
             >
-              Print
+              {isDownloading ? (
+                <>
+                  <span className="canada-spinner" aria-hidden="true" />
+                  Saving PDF...
+                </>
+              ) : (
+                "Print"
+              )}
             </button>
 
             <button
               type="button"
               className="canada-button canada-register-button"
               onClick={handleRegisterAndPrint}
-              disabled={busy}
+              disabled={isBusy}
             >
-              {busy ? "Registering..." : "Register and Print"}
+              {busy ? (
+                <>
+                  <span className="canada-spinner" aria-hidden="true" />
+                  Registering...
+                </>
+              ) : isDownloading ? (
+                <>
+                  <span className="canada-spinner" aria-hidden="true" />
+                  Saving PDF...
+                </>
+              ) : (
+                "Register and Print"
+              )}
             </button>
           </div>
         </section>
