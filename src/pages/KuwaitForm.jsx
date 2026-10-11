@@ -49,15 +49,45 @@ function KuwaitForm() {
       return undefined;
     }
 
-    const objectUrl = URL.createObjectURL(photoFile);
-    setPhotoPreview(objectUrl);
+    let cancelled = false;
+    const reader = new FileReader();
 
-    return () => URL.revokeObjectURL(objectUrl);
+    reader.onload = () => {
+      if (!cancelled && typeof reader.result === "string") {
+        setPhotoPreview(reader.result);
+      }
+    };
+
+    reader.onerror = () => {
+      if (!cancelled) {
+        setMessage(
+          "Could not read the profile photo. Please select it again."
+        );
+        setMessageType("error");
+        setPhotoPreview("");
+      }
+    };
+
+    reader.readAsDataURL(photoFile);
+
+    return () => {
+      cancelled = true;
+
+      if (reader.readyState === FileReader.LOADING) {
+        reader.abort();
+      }
+    };
   }, [photoFile]);
 
   const updateField = (event) => {
     const { name, value } = event.target;
-    setFormData((previous) => ({ ...previous, [name]: value }));
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+
+    setMessage("");
   };
 
   const handlePhotoChange = (event) => {
@@ -84,6 +114,7 @@ function KuwaitForm() {
     }
 
     setPhotoFile(file);
+    setShowPreview(false);
     setMessage("");
   };
 
@@ -111,125 +142,17 @@ function KuwaitForm() {
     return true;
   };
 
-  const handlePreview = () => {
-    if (!validateForm()) return;
-
-    setShowPreview(true);
-    setMessage("Preview is ready. Please check the form before registering.");
-    setMessageType("success");
-
-    window.setTimeout(() => {
-      paperRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 100);
-  };
-
-  const waitForImages = async (element) => {
-    if (!element) return;
-
-    const images = Array.from(element.querySelectorAll("img"));
-
-    await Promise.all(
-      images.map(
-        (image) =>
-          new Promise((resolve) => {
-            if (image.complete) {
-              resolve();
-              return;
-            }
-
-            image.onload = resolve;
-            image.onerror = resolve;
-          })
-      )
-    );
-  };
-
-  // Download the entire form preview on one A4 page.
-  const downloadPdf = async () => {
-    if (!paperRef.current) {
-      throw new Error(
-        "The form preview could not be found. Please preview the form again."
-      );
-    }
-
-    await waitForImages(paperRef.current);
-
-    const canvas = await html2canvas(paperRef.current, {
-      scale: 3,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      logging: false,
-      scrollX: 0,
-      scrollY: -window.scrollY,
-    });
-
-    const imageData = canvas.toDataURL("image/jpeg", 0.98);
-    const pdf = new jsPDF("p", "mm", "a4");
-
-    // A4 page with a small margin.
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const margin = 5;
-    const availableWidth = pageWidth - margin * 2;
-    const availableHeight = pageHeight - margin * 2;
-
-    // Fit the complete form inside one page without cropping.
-    const widthRatio = availableWidth / canvas.width;
-    const heightRatio = availableHeight / canvas.height;
-    const fitRatio = Math.min(widthRatio, heightRatio);
-
-    const imageWidth = canvas.width * fitRatio;
-    const imageHeight = canvas.height * fitRatio;
-
-    const xPosition = (pageWidth - imageWidth) / 2;
-    const yPosition = (pageHeight - imageHeight) / 2;
-
-    pdf.addImage(
-      imageData,
-      "JPEG",
-      xPosition,
-      yPosition,
-      imageWidth,
-      imageHeight
-    );
-
-    // Example: Kuwait_Registration_abebe_kebede_alemu.pdf
-    const safeName =
-      formData.full_name
-        .trim()
-        .toLowerCase()
-        .replace(/[<>:"/\\|?*\x00-\x1F]/g, "")
-        .replace(/\s+/g, "_")
-        .replace(/^_+|_+$/g, "") || "applicant";
-
-    pdf.save(`Kuwait_Registration_${safeName}.pdf`);
-  };
-
+  // Upload the original applicant photo to Supabase Storage.
   const uploadPhoto = async () => {
     if (!photoFile) {
-      throw new Error("Please upload the applicant's photo first.");
+      throw new Error("Please select the applicant's profile photo.");
     }
 
-    const extensionFromName = photoFile.name.split(".").pop()?.toLowerCase();
-    const allowedExtensions = ["jpg", "jpeg", "png", "webp"];
+    const safeName = photoFile.name
+      .normalize("NFKD")
+      .replace(/[^a-zA-Z0-9._-]/g, "_");
 
-    const extension = allowedExtensions.includes(extensionFromName)
-      ? extensionFromName
-      : photoFile.type === "image/png"
-        ? "png"
-        : photoFile.type === "image/webp"
-          ? "webp"
-          : "jpg";
-
-    const randomId =
-      typeof crypto !== "undefined" && crypto.randomUUID
-        ? crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-
-    const filePath = `${Date.now()}-${randomId}.${extension}`;
+    const filePath = `applicants/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("kuwait-applicant-photos")
@@ -248,16 +171,251 @@ function KuwaitForm() {
       .getPublicUrl(filePath);
 
     if (!data?.publicUrl) {
-      throw new Error(
-        "The photo uploaded, but its public URL could not be created."
-      );
+      throw new Error("Could not obtain the uploaded photo URL.");
     }
 
     return data.publicUrl;
   };
 
+  const handlePreview = () => {
+    if (!validateForm()) return;
+
+    setShowPreview(true);
+    setMessage("Preview is ready. Please check the form before registering.");
+    setMessageType("success");
+
+    window.setTimeout(() => {
+      paperRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
+  };
+
+  // Wait for all images in the preview or PDF copy to finish loading.
+  const waitForImages = async (element) => {
+    if (!element) return;
+
+    const images = Array.from(element.querySelectorAll("img"));
+
+    await Promise.all(
+      images.map(async (image) => {
+        if (!image.complete) {
+          await new Promise((resolve) => {
+            image.onload = resolve;
+            image.onerror = resolve;
+          });
+        }
+
+        if (typeof image.decode === "function" && image.naturalWidth > 0) {
+          try {
+            await image.decode();
+          } catch (error) {
+            console.warn("An image could not be decoded:", error);
+          }
+        }
+      })
+    );
+  };
+
+  // Download the complete form preview on one A4 page.
+  const downloadPdf = async () => {
+    if (!paperRef.current) {
+      throw new Error(
+        "The form preview could not be found. Please preview the form again."
+      );
+    }
+
+    const originalPaper = paperRef.current;
+
+    await waitForImages(originalPaper);
+
+    const pdfContainer = document.createElement("div");
+    const pdfPaper = originalPaper.cloneNode(true);
+
+    Object.assign(pdfContainer.style, {
+      position: "fixed",
+      left: "-12000px",
+      top: "0",
+      width: "794px",
+      minWidth: "794px",
+      background: "#ffffff",
+      zIndex: "-1",
+      pointerEvents: "none",
+    });
+
+    Object.assign(pdfPaper.style, {
+      display: "block",
+      boxSizing: "border-box",
+      width: "794px",
+      minWidth: "794px",
+      maxWidth: "794px",
+      minHeight: "1123px",
+      height: "auto",
+      margin: "0",
+      padding: "32px",
+      overflow: "visible",
+      border: "0",
+      boxShadow: "none",
+      background: "#ffffff",
+      transform: "none",
+    });
+
+    // Keep applicant identity and address tables side by side.
+    const tableGrid = pdfPaper.querySelector(".kuwait-paper-table-grid");
+
+    if (tableGrid) {
+      Object.assign(tableGrid.style, {
+        display: "grid",
+        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+        gap: "8px",
+        alignItems: "start",
+        width: "100%",
+      });
+    }
+
+    // Keep the signature blocks side by side.
+    const signatures = pdfPaper.querySelector(".kuwait-paper-signatures");
+
+    if (signatures) {
+      Object.assign(signatures.style, {
+        display: "grid",
+        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+        gap: "18px 24px",
+      });
+    }
+
+    // Ensure the applicant's photo is included in the exported PDF.
+    const sourcePhoto = originalPaper.querySelector(
+      ".kuwait-paper-photo img"
+    );
+
+    const pdfPhoto = pdfPaper.querySelector(".kuwait-paper-photo img");
+
+    if (sourcePhoto && pdfPhoto) {
+      const photoSource = sourcePhoto.currentSrc || sourcePhoto.src;
+
+      if (!photoSource) {
+        throw new Error("The applicant profile photo is missing.");
+      }
+
+      pdfPhoto.src = photoSource;
+      pdfPhoto.style.display = "block";
+      pdfPhoto.style.width = "100%";
+      pdfPhoto.style.height = "100%";
+      pdfPhoto.style.objectFit = "cover";
+
+      await new Promise((resolve, reject) => {
+        if (pdfPhoto.complete && pdfPhoto.naturalWidth > 0) {
+          resolve();
+          return;
+        }
+
+        let settled = false;
+
+        const finish = (error) => {
+          if (settled) return;
+          settled = true;
+          window.clearTimeout(timeoutId);
+
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        };
+
+        pdfPhoto.onload = () => finish();
+        pdfPhoto.onerror = () =>
+          finish(
+            new Error("Could not load the applicant photo for the PDF.")
+          );
+
+        const timeoutId = window.setTimeout(() => {
+          finish(
+            new Error("Timed out while loading the applicant photo for the PDF.")
+          );
+        }, 10000);
+      });
+    } else {
+      throw new Error(
+        "The applicant photo is not present in the form preview."
+      );
+    }
+
+    pdfContainer.appendChild(pdfPaper);
+    document.body.appendChild(pdfContainer);
+
+    try {
+      await waitForImages(pdfPaper);
+
+      const canvas = await html2canvas(pdfPaper, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: "#ffffff",
+        logging: false,
+        width: 794,
+        windowWidth: 1200,
+        windowHeight: 1200,
+        scrollX: 0,
+        scrollY: 0,
+      });
+
+      const imageData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
+
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 5;
+      const availableWidth = pageWidth - margin * 2;
+      const availableHeight = pageHeight - margin * 2;
+
+      const ratio = Math.min(
+        availableWidth / canvas.width,
+        availableHeight / canvas.height
+      );
+
+      const imageWidth = canvas.width * ratio;
+      const imageHeight = canvas.height * ratio;
+
+      const x = (pageWidth - imageWidth) / 2;
+      const y = (pageHeight - imageHeight) / 2;
+
+      pdf.addImage(
+        imageData,
+        "PNG",
+        x,
+        y,
+        imageWidth,
+        imageHeight,
+        undefined,
+        "FAST"
+      );
+
+      const safeName =
+        formData.full_name
+          .trim()
+          .toLowerCase()
+          .replace(/[<>:"/\\|?*\x00-\x1F]/g, "")
+          .replace(/\s+/g, "_")
+          .replace(/^_+|_+$/g, "") || "applicant";
+
+      pdf.save(`Kuwait_Registration_${safeName}.pdf`);
+    } finally {
+      pdfContainer.remove();
+    }
+  };
+
   const handleRegisterAndPrint = async () => {
     if (loading) return;
+
     if (!validateForm()) return;
 
     if (!showPreview) {
@@ -337,6 +495,7 @@ function KuwaitForm() {
 
     try {
       await downloadPdf();
+
       setMessage("PDF downloaded successfully.");
       setMessageType("success");
     } catch (error) {
@@ -363,6 +522,7 @@ function KuwaitForm() {
           required={options.required}
         >
           <option value="">Select / ይምረጡ</option>
+
           {options.options.map((option) => (
             <option value={option.value} key={option.value}>
               {option.label}
@@ -412,6 +572,7 @@ function KuwaitForm() {
               <h2>Applicant Information</h2>
               <p>የተመዝጋቢው መረጃ</p>
             </div>
+
             <span className="kuwait-required-note">* Required fields</span>
           </div>
 
@@ -465,6 +626,7 @@ function KuwaitForm() {
             {renderField("Full Name / ሙሉ ስም", "full_name", {
               required: true,
             })}
+
             {renderField("Gender / ፆታ", "gender", {
               type: "select",
               options: [
@@ -472,25 +634,30 @@ function KuwaitForm() {
                 { value: "Female", label: "Female / ሴት" },
               ],
             })}
+
             {renderField("Age / እድሜ", "age", {
               type: "number",
               min: 0,
               max: 120,
             })}
+
             {renderField("Height (cm) / ቁመት", "height", {
               type: "number",
               min: 0,
               step: "0.1",
             })}
+
             {renderField("Weight (kg) / ክብደት", "weight", {
               type: "number",
               min: 0,
               step: "0.1",
             })}
+
             {renderField("Phone Number / ስልክ ቁጥር", "phone", {
               type: "tel",
               required: true,
             })}
+
             {renderField("Education Level / የትምህርት ደረጃ", "education_level")}
           </div>
 
@@ -507,10 +674,13 @@ function KuwaitForm() {
             {renderField("Woreda / ወረዳ", "woreda")}
             {renderField("Kebele / ቀበሌ", "kebele")}
             {renderField("Nationality / ዜግነት", "nationality")}
+
             {renderField("Date of Birth / የትውልድ ዘመን", "date_of_birth", {
               type: "date",
             })}
+
             {renderField("Place of Birth / የትውልድ ቦታ", "place_of_birth")}
+
             {renderField("Form Date / ቅጹ የተሞላበት ቀን", "form_date", {
               type: "date",
             })}
@@ -526,6 +696,7 @@ function KuwaitForm() {
 
           <div className="kuwait-input-grid">
             {renderField("Contact Full Name / ሙሉ ስም", "contact_full_name")}
+
             {renderField("Contact Gender / ፆታ", "contact_gender", {
               type: "select",
               options: [
@@ -533,12 +704,15 @@ function KuwaitForm() {
                 { value: "Female", label: "Female / ሴት" },
               ],
             })}
+
             {renderField("Contact Age / እድሜ", "contact_age", {
               type: "number",
               min: 0,
               max: 120,
             })}
+
             {renderField("Occupation / ስራ", "contact_occupation")}
+
             {renderField("Contact Phone / ስልክ ቁጥር", "contact_phone", {
               type: "tel",
             })}
@@ -597,9 +771,7 @@ function KuwaitForm() {
 
                   <div className="kuwait-paper-date">
                     <strong>ቀን / Date:</strong>
-                    <span>
-                      {formData.form_date || "________________"}
-                    </span>
+                    <span>{formData.form_date || "________________"}</span>
                   </div>
                 </div>
 
@@ -615,18 +787,15 @@ function KuwaitForm() {
                     ባወጣው የስራ እድል መግለጫ መሰረት ብዛት ያለው የሰው ሀይል
                     እንደሚያስፈልግ ያሳወቀ ሲሆን በዚህም መሰረት፦
                   </p>
+
                   <p>
-                    እኔ አቶ/ወ/ሮ{" "}
-                    
-                      {formData.full_name || "________________"}
-                   {" "}
+                    እኔ አቶ/ወ/ሮ {formData.full_name || "________________"}{" "}
                     አዲስ በወጣው የስራ መግለጫ መሰረት ተመዝጋቢ ሆኜ ቀርቤአለሁ።
                     ስለሆነም በኢትዮጵያዊነቴ በመንግስት እርዳታ ወደ ኩዌት በስራ ቪዛ
                     ለመሄድ መስማማቴን ከዚህ በታች በሞላሁት ቅጽ ፈርሜ አስቀምጫለሁ።
                   </p>
                 </div>
 
-                {/* Tables 1 and 2 stay side by side. */}
                 <div
                   className="kuwait-paper-table-grid"
                   style={{
@@ -639,6 +808,7 @@ function KuwaitForm() {
                 >
                   <section className="kuwait-paper-table-block">
                     <h3>❖ የተመዝጋቢው ማንነት / Applicant Identity</h3>
+
                     <table>
                       <tbody>
                         <tr>
@@ -675,6 +845,7 @@ function KuwaitForm() {
 
                   <section className="kuwait-paper-table-block">
                     <h3>የአድራሻ መረጃ / Address Information</h3>
+
                     <table>
                       <tbody>
                         <tr>
@@ -710,7 +881,6 @@ function KuwaitForm() {
                   </section>
                 </div>
 
-                {/* Table 3 stays below tables 1 and 2. */}
                 <section
                   className="kuwait-paper-table-block kuwait-contact-table"
                   style={{
@@ -723,6 +893,7 @@ function KuwaitForm() {
                   <h3>
                     ❖ የቅርብ ተጠሪ ወይም ተያዥ / Emergency Contact
                   </h3>
+
                   <table>
                     <tbody>
                       <tr>
@@ -753,10 +924,10 @@ function KuwaitForm() {
                   <p>
                     የተመዝጋቢው ስም :
                     <strong>
-                      {formData.full_name ||
-                        "________________________"}
+                      {formData.full_name || "________________________"}
                     </strong>
                   </p>
+
                   <p>
                     የቅርብ ተጠሪ ስም :
                     <strong>
