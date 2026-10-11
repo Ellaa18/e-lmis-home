@@ -9,6 +9,7 @@ import Footer from "../components/Footer";
 import "../styles/CanadaForm.css";
 
 const PDF_BUCKET = "canada-registration-pdfs";
+const PHOTO_BUCKET = "canada-applicant-photos";
 
 const initialForm = {
   full_name: "",
@@ -65,8 +66,6 @@ const contactFields = [
   { name: "contact_phone", label: "ስልክ ቁጥር", type: "tel" },
 ];
 
-// Convert the original uploaded file into a data URL.
-// This avoids relying on a temporary blob URL when generating the PDF.
 const fileToDataUrl = (file) =>
   new Promise((resolve, reject) => {
     if (!file) {
@@ -90,17 +89,36 @@ const fileToDataUrl = (file) =>
     reader.readAsDataURL(file);
   });
 
+function getSupabaseError(error) {
+  if (!error) return "Unknown Supabase error.";
+
+  const parts = [
+    error.message,
+    error.details,
+    error.hint,
+    error.code ? `Code: ${error.code}` : "",
+  ].filter(Boolean);
+
+  return parts.join(" | ") || "Unknown Supabase error.";
+}
+
 function CanadaForm() {
   const [formData, setFormData] = useState(initialForm);
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
   const [busy, setBusy] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
   const previewRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  const showMessage = (text, type = "info") => {
+    setMessage(text);
+    setMessageType(type);
+  };
 
   useEffect(() => {
     if (!photoFile) {
@@ -129,30 +147,30 @@ function CanadaForm() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setMessage("እባክዎ የፎቶ ፋይል ብቻ ይምረጡ።");
+      showMessage("እባክዎ የፎቶ ፋይል ብቻ ይምረጡ።", "error");
       event.target.value = "";
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setMessage("የፎቶው መጠን ከ5MB መብለጥ የለበትም።");
+      showMessage("የፎቶው መጠን ከ5MB መብለጥ የለበትም።", "error");
       event.target.value = "";
       return;
     }
 
     setPhotoFile(file);
     setShowPreview(false);
-    setMessage("");
+    showMessage("");
   };
 
   const handlePreview = () => {
     if (!formData.full_name.trim()) {
-      setMessage("እባክዎ የተመዝጋቢውን ሙሉ ስም ያስገቡ።");
+      showMessage("እባክዎ የተመዝጋቢውን ሙሉ ስም ያስገቡ።", "error");
       return;
     }
 
     setShowPreview(true);
-    setMessage("");
+    showMessage("");
 
     setTimeout(() => {
       previewRef.current?.scrollIntoView({
@@ -162,7 +180,6 @@ function CanadaForm() {
     }, 100);
   };
 
-  // Wait until images are genuinely loaded, then decode them.
   const waitForImages = async (element) => {
     if (!element) return;
 
@@ -173,17 +190,21 @@ function CanadaForm() {
         if (!image.complete || image.naturalWidth === 0) {
           await new Promise((resolve) => {
             let finished = false;
+            let timeoutId;
 
             const finish = () => {
               if (finished) return;
               finished = true;
+
               image.removeEventListener("load", finish);
               image.removeEventListener("error", finish);
-              clearTimeout(timeoutId);
+
+              if (timeoutId) clearTimeout(timeoutId);
+
               resolve();
             };
 
-            const timeoutId = setTimeout(finish, 10000);
+            timeoutId = setTimeout(finish, 10000);
 
             image.addEventListener("load", finish, { once: true });
             image.addEventListener("error", finish, { once: true });
@@ -205,8 +226,6 @@ function CanadaForm() {
     );
   };
 
-  // Generate the PDF once and return its Blob and filename.
-  // Both the downloaded file and the Supabase upload use this same Blob.
   const createPdfBlob = async () => {
     if (!showPreview || !previewRef.current) {
       throw new Error("እባክዎ መጀመሪያ Preview ይጫኑ።");
@@ -221,7 +240,6 @@ function CanadaForm() {
     let pdfContainer;
 
     try {
-      // Create a permanent image representation for the PDF.
       const photoDataUrl = await fileToDataUrl(photoFile);
 
       await waitForImages(paper);
@@ -263,7 +281,6 @@ function CanadaForm() {
         flex: "none",
       });
 
-      // Preserve two-column paper fields, regardless of screen width.
       pdfPaper.querySelectorAll(".canada-paper-fields").forEach((fields) => {
         Object.assign(fields.style, {
           display: "grid",
@@ -298,7 +315,6 @@ function CanadaForm() {
         });
       }
 
-      // Use the image data URL rather than the temporary blob URL.
       const photo = pdfPaper.querySelector(".canada-paper-photo img");
 
       if (!photo) {
@@ -337,7 +353,6 @@ function CanadaForm() {
         });
       }
 
-      // Remove section-heading borders; the footer rule after the motto remains.
       pdfPaper.querySelectorAll(".canada-paper h3").forEach((heading) => {
         heading.style.borderBottom = "0";
         heading.style.paddingBottom = "0";
@@ -354,7 +369,6 @@ function CanadaForm() {
         );
       }
 
-      // Allow the browser to finish laying out the fixed-size page.
       await new Promise((resolve) =>
         requestAnimationFrame(() => requestAnimationFrame(resolve))
       );
@@ -382,7 +396,6 @@ function CanadaForm() {
         compress: true,
       });
 
-      // Fill a standard A4 portrait page with a small, even margin.
       const pageWidth = 210;
       const pageHeight = 297;
       const margin = 4;
@@ -411,7 +424,6 @@ function CanadaForm() {
     }
   };
 
-  // Download the generated PDF Blob.
   const savePdfToDevice = (blob, fileName) => {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
@@ -426,120 +438,134 @@ function CanadaForm() {
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
-  // The Print button only downloads the PDF; it does not register or upload it.
   const downloadPdf = async () => {
     if (isDownloading || busy) return;
 
     if (!showPreview || !previewRef.current) {
-      setMessage("እባክዎ መጀመሪያ Preview ይጫኑ።");
+      showMessage("እባክዎ መጀመሪያ Preview ይጫኑ።", "error");
       return;
     }
 
     setIsDownloading(true);
-    setMessage("PDF እየተዘጋጀ ነው። እባክዎ ይጠብቁ...");
+    showMessage("PDF እየተዘጋጀ ነው። እባክዎ ይጠብቁ...", "info");
 
     try {
       const generatedPdf = await createPdfBlob();
 
       savePdfToDevice(generatedPdf.blob, generatedPdf.fileName);
-      setMessage("PDF በተሳካ ሁኔታ ወርዷል።");
+
+      showMessage("PDF በተሳካ ሁኔታ ወርዷል።", "success");
     } catch (error) {
       console.error("Canada PDF export error:", error);
-      setMessage(
-        error.message || "PDF ማውረድ አልተቻለም። እባክዎ እንደገና ይሞክሩ።"
+      showMessage(
+        error.message || "PDF ማውረድ አልተቻለም። እባክዎ እንደገና ይሞክሩ።",
+        "error"
       );
     } finally {
       setIsDownloading(false);
     }
   };
 
+  // Storage uploads are attempted separately from the database insert.
+  // A storage failure should not automatically prevent the registration row
+  // from being saved.
   const uploadPhoto = async () => {
-    if (!photoFile) {
-      throw new Error("እባክዎ የተመዝጋቢውን ፎቶ ይጫኑ።");
+    if (!photoFile) return { url: null, warning: null };
+
+    try {
+      const extension =
+        photoFile.name.split(".").pop()?.toLowerCase() || "jpg";
+
+      const filePath = `${Date.now()}-${crypto.randomUUID()}.${extension}`;
+
+      const { error } = await supabase.storage
+        .from(PHOTO_BUCKET)
+        .upload(filePath, photoFile, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: photoFile.type,
+        });
+
+      if (error) throw error;
+
+      const { data } = supabase.storage
+        .from(PHOTO_BUCKET)
+        .getPublicUrl(filePath);
+
+      if (!data?.publicUrl) {
+        throw new Error("Supabase did not return a public photo URL.");
+      }
+
+      return { url: data.publicUrl, warning: null };
+    } catch (error) {
+      console.error("Canada photo upload error:", error);
+
+      return {
+        url: null,
+        warning: `Photo upload failed: ${getSupabaseError(error)}`,
+      };
     }
-
-    const extension = photoFile.name.split(".").pop()?.toLowerCase() || "jpg";
-    const filePath = `${Date.now()}-${crypto.randomUUID()}.${extension}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("canada-applicant-photos")
-      .upload(filePath, photoFile, {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: photoFile.type,
-      });
-
-    if (uploadError) {
-      throw new Error(
-        `ፎቶውን ወደ Supabase መላክ አልተቻለም፦ ${uploadError.message}`
-      );
-    }
-
-    const { data } = supabase.storage
-      .from("canada-applicant-photos")
-      .getPublicUrl(filePath);
-
-    if (!data?.publicUrl) {
-      throw new Error("የፎቶውን URL ማግኘት አልተቻለም።");
-    }
-
-    return data.publicUrl;
   };
 
-  // Upload the exact PDF Blob that will be downloaded to the device.
   const uploadPdf = async (pdfBlob, fileName) => {
-    const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filePath = `registrations/${Date.now()}-${crypto.randomUUID()}-${safeFileName}`;
+    try {
+      const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
 
-    const { error: uploadError } = await supabase.storage
-      .from(PDF_BUCKET)
-      .upload(filePath, pdfBlob, {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: "application/pdf",
-      });
+      const filePath =
+        `registrations/${Date.now()}-${crypto.randomUUID()}-${safeFileName}`;
 
-    if (uploadError) {
-      throw new Error(`PDF ወደ Supabase መላክ አልተቻለም፦ ${uploadError.message}`);
+      const { error } = await supabase.storage
+        .from(PDF_BUCKET)
+        .upload(filePath, pdfBlob, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: "application/pdf",
+        });
+
+      if (error) throw error;
+
+      return { path: filePath, warning: null };
+    } catch (error) {
+      console.error("Canada PDF upload error:", error);
+
+      return {
+        path: null,
+        warning: `PDF upload failed: ${getSupabaseError(error)}`,
+      };
     }
-
-    return filePath;
   };
 
   const handleRegisterAndPrint = async () => {
     if (busy || isDownloading) return;
 
     if (!formData.full_name.trim()) {
-      setMessage("እባክዎ የተመዝጋቢውን ሙሉ ስም ያስገቡ።");
+      showMessage("እባክዎ የተመዝጋቢውን ሙሉ ስም ያስገቡ።", "error");
       return;
     }
 
     if (!photoFile) {
-      setMessage("እባክዎ የተመዝጋቢውን ፎቶ ይጫኑ።");
+      showMessage("እባክዎ የተመዝጋቢውን ፎቶ ይጫኑ።", "error");
       return;
     }
 
-    if (!showPreview) {
-      setMessage("እባክዎ መጀመሪያ Preview ይጫኑ።");
+    if (!showPreview || !previewRef.current) {
+      showMessage("እባክዎ መጀመሪያ Preview ይጫኑ።", "error");
       return;
     }
 
     setBusy(true);
-    setMessage("ምዝገባው እየተካሄደ ነው። እባክዎ ይጠብቁ...");
-
-    let uploadedPdfPath = null;
+    showMessage("1/3 ፎቶውን ወደ Supabase በመላክ ላይ...", "info");
 
     try {
-      const photoUrl = await uploadPhoto();
-
-      setMessage("PDF እየተዘጋጀ ነው...");
-
-      // Generate only once so the uploaded and downloaded files are identical.
+      // Generate the PDF before attempting to save the database record.
+      showMessage("PDF እየተዘጋጀ ነው...", "info");
       const generatedPdf = await createPdfBlob();
 
-      setMessage("PDF ወደ Supabase እየተላከ ነው...");
+      // These uploads are best-effort. They do not block the database insert.
+      showMessage("2/3 ፎቶውን እና PDF ወደ Supabase በመላክ ላይ...", "info");
 
-      uploadedPdfPath = await uploadPdf(
+      const photoResult = await uploadPhoto();
+      const pdfResult = await uploadPdf(
         generatedPdf.blob,
         generatedPdf.fileName
       );
@@ -551,35 +577,47 @@ function CanadaForm() {
         height: formData.height === "" ? null : Number(formData.height),
         date_of_birth: formData.date_of_birth || null,
         form_date: formData.form_date || null,
-        profile_photo_url: photoUrl,
-        pdf_path: uploadedPdfPath,
+        profile_photo_url: photoResult.url,
+        pdf_path: pdfResult.path,
       };
 
-      setMessage("መረጃው ወደ Supabase እየተመዘገበ ነው...");
+      showMessage("3/3 መረጃው ወደ Supabase በመመዝገብ ላይ...", "info");
 
+      // This is the operation that registers the applicant in the database.
       const { error: insertError } = await supabase
         .from("canada_registrations")
         .insert([payload]);
 
       if (insertError) {
-        // Remove the uploaded PDF if its registration row could not be saved.
-        await supabase.storage
-          .from(PDF_BUCKET)
-          .remove([uploadedPdfPath]);
+        console.error("Supabase registration insert error:", insertError);
 
-        uploadedPdfPath = null;
-
-        throw new Error(`ምዝገባው አልተሳካም፦ ${insertError.message}`);
+        throw new Error(
+          `ምዝገባው አልተሳካም። Supabase: ${getSupabaseError(insertError)}`
+        );
       }
 
-      // Download the exact same PDF Blob already uploaded to Supabase.
+      // The database insert succeeded. Download the same PDF generated above.
       savePdfToDevice(generatedPdf.blob, generatedPdf.fileName);
 
-      setMessage("ምዝገባው ተሳክቷል። PDF ተመዝግቦ ወርዷል።");
+      const warnings = [photoResult.warning, pdfResult.warning].filter(Boolean);
+
+      if (warnings.length > 0) {
+        showMessage(
+          `ምዝገባው ተሳክቷል! መረጃው ወደ Supabase canada_registrations ተመዝግቧል። PDF ወርዷል። ማስጠንቀቂያ: ${warnings.join(" ; ")}`,
+          "success"
+        );
+      } else {
+        showMessage(
+          "ምዝገባው ተሳክቷል! መረጃው፣ ፎቶው እና PDF ወደ Supabase ተመዝግበዋል። PDF ወርዷል።",
+          "success"
+        );
+      }
     } catch (error) {
       console.error("Canada registration error:", error);
-      setMessage(
-        error.message || "ስህተት ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።"
+
+      showMessage(
+        `ምዝገባው አልተሳካም። ${error.message || getSupabaseError(error)}`,
+        "error"
       );
     } finally {
       setBusy(false);
@@ -681,7 +719,13 @@ function CanadaForm() {
         </section>
 
         {message && (
-          <p className="canada-form-message" role="status" aria-live="polite">
+          <p
+            className={`canada-form-message ${
+              messageType ? `canada-message-${messageType}` : ""
+            }`}
+            role="status"
+            aria-live="polite"
+          >
             {isBusy && <span className="canada-spinner" aria-hidden="true" />}
             {message}
           </p>
