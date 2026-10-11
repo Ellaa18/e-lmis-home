@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -10,8 +9,8 @@ import "../styles/CanadaForm.css";
 
 const PDF_BUCKET = "canada-registration-pdfs";
 const PHOTO_BUCKET = "canada-applicant-photos";
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
 
-// Generate a unique filename across supported browsers.
 const createUniqueId = () => {
   try {
     if (
@@ -27,7 +26,6 @@ const createUniqueId = () => {
     ) {
       const bytes = new Uint8Array(16);
       globalThis.crypto.getRandomValues(bytes);
-
       return Array.from(bytes, (byte) =>
         byte.toString(16).padStart(2, "0")
       ).join("");
@@ -36,9 +34,7 @@ const createUniqueId = () => {
     console.warn("Secure ID generation unavailable:", error);
   }
 
-  return `${Date.now()}-${Math.random()
-    .toString(36)
-    .slice(2)}-${Math.random().toString(36).slice(2)}`;
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 };
 
 const initialForm = {
@@ -99,7 +95,7 @@ const contactFields = [
 const fileToDataUrl = (file) =>
   new Promise((resolve, reject) => {
     if (!file) {
-      reject(new Error("እባክዎ የተመዝጋቢውን ፎቶ ይጫኑ።"));
+      resolve("");
       return;
     }
 
@@ -109,15 +105,115 @@ const fileToDataUrl = (file) =>
       if (typeof reader.result === "string") {
         resolve(reader.result);
       } else {
-        reject(new Error("የተመዝጋቢውን ፎቶ ማንበብ አልተቻለም።"));
+        reject(new Error("የፎቶውን ፋይል ማንበብ አልተቻለም።"));
       }
     };
 
     reader.onerror = () =>
-      reject(new Error("የተመዝጋቢውን ፎቶ ማንበብ አልተቻለም።"));
+      reject(new Error("የፎቶውን ፋይል ማንበብ አልተቻለም።"));
 
     reader.readAsDataURL(file);
   });
+
+// Decode supported images and convert them to standard JPEG.
+// This avoids uploading HEIC, SVG, or other inconsistent formats.
+const normalizePhoto = async (file) => {
+  if (!file) return null;
+
+  const supportedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+  if (!supportedTypes.includes(file.type.toLowerCase())) {
+    throw new Error(
+      "JPG, PNG ወይም WebP ፎቶ ብቻ ይምረጡ።"
+    );
+  }
+
+  if (file.size > MAX_PHOTO_SIZE) {
+    throw new Error("የፎቶው መጠን ከ5MB መብለጥ የለበትም።");
+  }
+
+  let source;
+  let imageBitmap = false;
+
+  try {
+    if (typeof createImageBitmap === "function") {
+      source = await createImageBitmap(file);
+      imageBitmap = true;
+    } else {
+      source = await new Promise((resolve, reject) => {
+        const image = new Image();
+        const objectUrl = URL.createObjectURL(file);
+
+        image.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(image);
+        };
+
+        image.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error("ይህን ፎቶ መክፈት አልተቻለም።"));
+        };
+
+        image.src = objectUrl;
+      });
+    }
+
+    const originalWidth = source.width || source.naturalWidth;
+    const originalHeight = source.height || source.naturalHeight;
+
+    if (!originalWidth || !originalHeight) {
+      throw new Error("የፎቶው መጠን ትክክል አይደለም።");
+    }
+
+    const maxDimension = 1600;
+    const ratio = Math.min(
+      1,
+      maxDimension / Math.max(originalWidth, originalHeight)
+    );
+
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(originalWidth * ratio));
+    canvas.height = Math.max(1, Math.round(originalHeight * ratio));
+
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+      throw new Error("የፎቶውን ማስተካከያ ማዘጋጀት አልተቻለም።");
+    }
+
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(source, 0, 0, canvas.width, canvas.height);
+
+    const jpegBlob = await new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => {
+          if (blob && blob.size > 0) {
+            resolve(blob);
+          } else {
+            reject(new Error("ፎቶውን ወደ JPEG መቀየር አልተቻለም።"));
+          }
+        },
+        "image/jpeg",
+        0.88
+      );
+    });
+
+    if (jpegBlob.size > MAX_PHOTO_SIZE) {
+      throw new Error("የተስተካከለው ፎቶ ከ5MB በላይ ነው።");
+    }
+
+    return new File(
+      [jpegBlob],
+      `applicant-${createUniqueId()}.jpg`,
+      { type: "image/jpeg", lastModified: Date.now() }
+    );
+  } finally {
+    if (imageBitmap && source?.close) {
+      source.close();
+    }
+  }
+};
 
 function CanadaForm() {
   const [formData, setFormData] = useState(initialForm);
@@ -152,26 +248,30 @@ function CanadaForm() {
     }));
   };
 
-  const handlePhotoChange = (event) => {
+  const handlePhotoChange = async (event) => {
     const file = event.target.files?.[0];
 
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setMessage("እባክዎ የፎቶ ፋይል ብቻ ይምረጡ።");
-      event.target.value = "";
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setMessage("የፎቶው መጠን ከ5MB መብለጥ የለበትም።");
-      event.target.value = "";
-      return;
-    }
-
-    setPhotoFile(file);
-    setShowPreview(false);
     setMessage("");
+
+    try {
+      const normalizedPhoto = await normalizePhoto(file);
+
+      setPhotoFile(normalizedPhoto);
+      setShowPreview(false);
+      setMessage("ፎቶው ተቀብሏል።");
+    } catch (error) {
+      console.warn("Invalid applicant photo:", error);
+
+      setPhotoFile(null);
+      setShowPreview(false);
+      setMessage(
+        `${error?.message || "ፎቶው አልተቀበለም።"} ምዝገባውን ያለ ፎቶም ማድረግ ይችላሉ።`
+      );
+
+      event.target.value = "";
+    }
   };
 
   const handlePreview = () => {
@@ -197,43 +297,31 @@ function CanadaForm() {
     const images = Array.from(element.querySelectorAll("img"));
 
     await Promise.all(
-      images.map(async (image) => {
-        if (!image.complete || image.naturalWidth === 0) {
-          await new Promise((resolve) => {
+      images.map(
+        (image) =>
+          new Promise((resolve) => {
+            if (image.complete) {
+              resolve();
+              return;
+            }
+
             let finished = false;
-            let timeoutId;
 
             const finish = () => {
               if (finished) return;
               finished = true;
-
               image.removeEventListener("load", finish);
               image.removeEventListener("error", finish);
-
-              if (timeoutId) clearTimeout(timeoutId);
+              clearTimeout(timeoutId);
               resolve();
             };
 
-            timeoutId = window.setTimeout(finish, 10000);
+            const timeoutId = window.setTimeout(finish, 8000);
 
             image.addEventListener("load", finish, { once: true });
             image.addEventListener("error", finish, { once: true });
-
-            if (image.complete) finish();
-          });
-        }
-
-        if (
-          image.naturalWidth > 0 &&
-          typeof image.decode === "function"
-        ) {
-          try {
-            await image.decode();
-          } catch (error) {
-            console.warn("Could not decode PDF image:", error);
-          }
-        }
-      })
+          })
+      )
     );
   };
 
@@ -251,7 +339,9 @@ function CanadaForm() {
     let pdfContainer;
 
     try {
-      const photoDataUrl = await fileToDataUrl(photoFile);
+      const photoDataUrl = photoFile
+        ? await fileToDataUrl(photoFile)
+        : "";
 
       await waitForImages(paper);
 
@@ -328,21 +418,21 @@ function CanadaForm() {
 
       const photo = pdfPaper.querySelector(".canada-paper-photo img");
 
-      if (!photo) {
-        throw new Error("የተመዝጋቢው ፎቶ በፎርሙ ውስጥ አልተገኘም።");
+      if (photo && photoDataUrl) {
+        photo.removeAttribute("srcset");
+        photo.src = photoDataUrl;
+        photo.loading = "eager";
+
+        Object.assign(photo.style, {
+          display: "block",
+          width: "100%",
+          height: "100%",
+          maxWidth: "none",
+          objectFit: "cover",
+        });
+      } else if (photo) {
+        photo.remove();
       }
-
-      photo.removeAttribute("srcset");
-      photo.src = photoDataUrl;
-      photo.loading = "eager";
-
-      Object.assign(photo.style, {
-        display: "block",
-        width: "100%",
-        height: "100%",
-        maxWidth: "none",
-        objectFit: "cover",
-      });
 
       const watermark = pdfPaper.querySelector(".canada-paper-watermark");
 
@@ -374,13 +464,6 @@ function CanadaForm() {
 
       await waitForImages(pdfPaper);
 
-      if (!photo.complete || photo.naturalWidth === 0) {
-        throw new Error(
-          "የተመዝጋቢው ፎቶ መጫን አልተቻለም። እባክዎ ደግመው ይሞክሩ።"
-        );
-      }
-
-      // Wait for layout. Include a fallback for browsers without RAF.
       await new Promise((resolve) => {
         if (typeof window.requestAnimationFrame !== "function") {
           window.setTimeout(resolve, 100);
@@ -392,13 +475,13 @@ function CanadaForm() {
         });
       });
 
-      // Lower scale reduces memory use on mobile devices.
       const canvas = await html2canvas(pdfPaper, {
         scale: 2,
         useCORS: true,
         allowTaint: false,
         backgroundColor: "#ffffff",
         logging: false,
+        imageTimeout: 8000,
         width: 794,
         height: 1123,
         windowWidth: 1200,
@@ -407,7 +490,11 @@ function CanadaForm() {
         scrollY: 0,
       });
 
-      const imageData = canvas.toDataURL("image/jpeg", 0.95);
+      if (!canvas.width || !canvas.height) {
+        throw new Error("የPDF ምስል ማዘጋጀት አልተቻለም።");
+      }
+
+      const imageData = canvas.toDataURL("image/jpeg", 0.92);
 
       const pdf = new jsPDF({
         orientation: "portrait",
@@ -416,8 +503,6 @@ function CanadaForm() {
         compress: true,
       });
 
-      const pageWidth = 210;
-      const pageHeight = 297;
       const margin = 4;
 
       pdf.addImage(
@@ -425,13 +510,12 @@ function CanadaForm() {
         "JPEG",
         margin,
         margin,
-        pageWidth - margin * 2,
-        pageHeight - margin * 2,
+        210 - margin * 2,
+        297 - margin * 2,
         undefined,
         "FAST"
       );
 
-      // Avoid Unicode-property-regex compatibility issues in older browsers.
       const safeName =
         formData.full_name.trim().replace(/[^a-zA-Z0-9_-]+/g, "_") ||
         "Canada_Application";
@@ -457,7 +541,6 @@ function CanadaForm() {
     anchor.click();
     anchor.remove();
 
-    // Give the browser time to start the download.
     window.setTimeout(() => URL.revokeObjectURL(url), 10000);
   };
 
@@ -476,7 +559,7 @@ function CanadaForm() {
       const generatedPdf = await createPdfBlob();
 
       savePdfToDevice(generatedPdf.blob, generatedPdf.fileName);
-      setMessage("PDF ተዘጋጅቷል። ካልወረደ ከማውረጃዎች ይመልከቱ።");
+      setMessage("PDF ተዘጋጅቷል።");
     } catch (error) {
       console.error("Canada PDF export error:", error);
       setMessage(
@@ -489,28 +572,19 @@ function CanadaForm() {
   };
 
   const uploadPhoto = async () => {
-    if (!photoFile) {
-      throw new Error("እባክዎ የተመዝጋቢውን ፎቶ ይጫኑ።");
-    }
+    if (!photoFile) return null;
 
-    const extension =
-      photoFile.name.split(".").pop()?.toLowerCase() || "jpg";
-
-    const filePath = `${Date.now()}-${createUniqueId()}.${extension}`;
+    const filePath = `applicants/${Date.now()}-${createUniqueId()}.jpg`;
 
     const { error: uploadError } = await supabase.storage
       .from(PHOTO_BUCKET)
       .upload(filePath, photoFile, {
         cacheControl: "3600",
         upsert: false,
-        contentType: photoFile.type || "image/jpeg",
+        contentType: "image/jpeg",
       });
 
-    if (uploadError) {
-      throw new Error(
-        `ፎቶውን ወደ Supabase መላክ አልተቻለም፦ ${uploadError.message}`
-      );
-    }
+    if (uploadError) throw uploadError;
 
     const { data } = supabase.storage
       .from(PHOTO_BUCKET)
@@ -535,16 +609,12 @@ function CanadaForm() {
         contentType: "application/pdf",
       });
 
-    if (uploadError) {
-      throw new Error(
-        `PDF ወደ Supabase መላክ አልተቻለም፦ ${uploadError.message}`
-      );
-    }
+    if (uploadError) throw uploadError;
 
     return filePath;
   };
 
-  // Save the registration independently of PDF creation and download.
+  // Registration is saved first. Photo/PDF work happens afterward.
   const handleRegisterAndPrint = async () => {
     if (busy || isDownloading) return;
 
@@ -553,54 +623,14 @@ function CanadaForm() {
       return;
     }
 
-    if (!photoFile) {
-      setMessage("እባክዎ የተመዝጋቢውን ፎቶ ይጫኑ።");
-      return;
-    }
-
-    if (!showPreview) {
-      setMessage("እባክዎ መጀመሪያ Preview ይጫኑ።");
-      return;
-    }
-
     setBusy(true);
-    setMessage("ምዝገባው እየተካሄደ ነው። እባክዎ ይጠብቁ...");
+    setMessage("ምዝገባው ወደ Supabase እየተመዘገበ ነው...");
 
-    let uploadedPhotoUrl = null;
-    let uploadedPdfPath = null;
-    let generatedPdf = null;
     const warnings = [];
+    let registrationId = null;
+    let generatedPdf = null;
 
     try {
-      // Attempt photo upload, but don't let a storage failure alone
-      // prevent the registration row from being saved.
-      try {
-        setMessage("ፎቶው ወደ Supabase እየተላከ ነው...");
-
-        uploadedPhotoUrl = await uploadPhoto();
-      } catch (photoError) {
-        console.error("Canada photo upload error:", photoError);
-        warnings.push("ፎቶው ወደ Supabase አልተላከም");
-      }
-
-      // PDF generation/upload are attempted before inserting the row,
-      // but failures here do not automatically cancel registration.
-      try {
-        setMessage("PDF እየተዘጋጀ ነው...");
-
-        generatedPdf = await createPdfBlob();
-
-        setMessage("PDF ወደ Supabase እየተላከ ነው...");
-
-        uploadedPdfPath = await uploadPdf(
-          generatedPdf.blob,
-          generatedPdf.fileName
-        );
-      } catch (pdfError) {
-        console.error("Canada PDF generation/upload error:", pdfError);
-        warnings.push("PDF መዘጋጀት ወይም ወደ Supabase መላክ አልተሳካም");
-      }
-
       const payload = {
         ...formData,
         age: formData.age === "" ? null : Number(formData.age),
@@ -608,46 +638,93 @@ function CanadaForm() {
         height: formData.height === "" ? null : Number(formData.height),
         date_of_birth: formData.date_of_birth || null,
         form_date: formData.form_date || null,
-        profile_photo_url: uploadedPhotoUrl,
-        pdf_path: uploadedPdfPath,
+        profile_photo_url: null,
+        pdf_path: null,
       };
 
-      setMessage("መረጃው ወደ Supabase እየተመዘገበ ነው...");
-
-      const { error: insertError } = await supabase
+      // Save the actual registration first. File processing cannot prevent this insert.
+      const { data: insertedRow, error: insertError } = await supabase
         .from("canada_registrations")
-        .insert([payload]);
+        .insert([payload])
+        .select("id")
+        .single();
 
       if (insertError) {
-        if (uploadedPdfPath) {
-          try {
-            await supabase.storage
-              .from(PDF_BUCKET)
-              .remove([uploadedPdfPath]);
-          } catch (cleanupError) {
-            console.warn("PDF cleanup failed:", cleanupError);
-          }
-        }
-
         throw new Error(`ምዝገባው አልተሳካም፦ ${insertError.message}`);
       }
 
-      // The database insert succeeded. A download problem must not
-      // change the registration result.
-      if (generatedPdf) {
-        try {
-          savePdfToDevice(generatedPdf.blob, generatedPdf.fileName);
-        } catch (downloadError) {
-          console.error("Canada PDF download error:", downloadError);
-          warnings.push("PDF በራስ-ሰር ማውረድ አልተቻለም");
-        }
+      registrationId = insertedRow?.id;
+
+      if (!registrationId) {
+        warnings.push(
+          "ምዝገባው ተልኳል፣ ግን የምዝገባ ID ስለሌለ ፋይሎችን ማያያዝ አልተቻለም"
+        );
       } else {
-        warnings.push("PDF አልተዘጋጀም");
+        // Photo is optional. A photo error will not cancel the saved registration.
+        if (photoFile) {
+          try {
+            setMessage("ምዝገባው ተቀምጧል። ፎቶው ወደ Supabase እየተላከ ነው...");
+
+            const photoUrl = await uploadPhoto();
+
+            const { error: photoUpdateError } = await supabase
+              .from("canada_registrations")
+              .update({ profile_photo_url: photoUrl })
+              .eq("id", registrationId);
+
+            if (photoUpdateError) throw photoUpdateError;
+          } catch (photoError) {
+            console.error("Canada photo upload/update error:", photoError);
+            warnings.push("ፎቶው አልተቀመጠም");
+          }
+        } else {
+          warnings.push("ፎቶ አልተጨመረም");
+        }
+
+        // PDF creation, upload, and download are all optional after registration.
+        if (showPreview && previewRef.current) {
+          try {
+            setMessage("ምዝገባው ተቀምጧል። PDF እየተዘጋጀ ነው...");
+
+            generatedPdf = await createPdfBlob();
+
+            setMessage("PDF ወደ Supabase እየተላከ ነው...");
+
+            const pdfPath = await uploadPdf(
+              generatedPdf.blob,
+              generatedPdf.fileName
+            );
+
+            const { error: pdfUpdateError } = await supabase
+              .from("canada_registrations")
+              .update({ pdf_path: pdfPath })
+              .eq("id", registrationId);
+
+            if (pdfUpdateError) {
+              console.error("Canada PDF path update error:", pdfUpdateError);
+              warnings.push("PDF ተልኳል ግን ከምዝገባው ጋር ማያያዝ አልተቻለም");
+            }
+          } catch (pdfError) {
+            console.error("Canada PDF generation/upload error:", pdfError);
+            warnings.push("PDF መዘጋጀት ወይም መቀመጥ አልተሳካም");
+          }
+        } else {
+          warnings.push("PDF አልተዘጋጀም፤ Preview አልተከፈተም");
+        }
+
+        if (generatedPdf) {
+          try {
+            savePdfToDevice(generatedPdf.blob, generatedPdf.fileName);
+          } catch (downloadError) {
+            console.error("Canada PDF download error:", downloadError);
+            warnings.push("PDF ወደ ስልክዎ/ኮምፒውተርዎ ማውረድ አልተቻለም");
+          }
+        }
       }
 
-      if (warnings.length > 0) {
+      if (warnings.length) {
         setMessage(
-          `ምዝገባው ተሳክቷል። ማስታወሻ፦ ${warnings.join("፤ ")}።`
+          `ምዝገባው ተሳክቷል። ${warnings.join("፤ ")}። የምዝገባው መረጃ በSupabase ተቀምጧል።`
         );
       } else {
         setMessage("ምዝገባው ተሳክቷል። PDF ተመዝግቦ ወርዷል።");
@@ -657,7 +734,7 @@ function CanadaForm() {
 
       setMessage(
         error?.message ||
-          "ስህተት ተፈጥሯል። እባክዎ ደግመው ይሞክሩ።"
+          "ምዝገባው አልተሳካም። እባክዎ ደግመው ይሞክሩ።"
       );
     } finally {
       setBusy(false);
@@ -682,6 +759,7 @@ function CanadaForm() {
           value={formData[field.name]}
           onChange={updateField}
           required={field.required}
+          disabled={busy || isDownloading}
         >
           <option value="">ይምረጡ</option>
           <option value="ወንድ">ወንድ</option>
@@ -695,6 +773,7 @@ function CanadaForm() {
           onChange={updateField}
           required={field.required}
           min={field.type === "number" ? "0" : undefined}
+          disabled={busy || isDownloading}
         />
       )}
     </label>
@@ -735,12 +814,14 @@ function CanadaForm() {
               ref={fileInputRef}
               id="canada-photo"
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               onChange={handlePhotoChange}
+              disabled={isBusy}
               hidden
             />
 
-            <p>የፎቶ መጠን ከ5MB በታች መሆን አለበት።</p>
+            <p>JPG, PNG ወይም WebP፤ ከ5MB በታች።</p>
+            <p>ፎቶ ካልተሳካ ምዝገባውን ማድረግ ይችላሉ።</p>
           </div>
         </div>
 
@@ -893,11 +974,6 @@ function CanadaForm() {
                 <>
                   <span className="canada-spinner" aria-hidden="true" />
                   Registering...
-                </>
-              ) : isDownloading ? (
-                <>
-                  <span className="canada-spinner" aria-hidden="true" />
-                  Saving PDF...
                 </>
               ) : (
                 "Register and Print"
