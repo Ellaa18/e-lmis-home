@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -83,6 +84,9 @@ const SUPPORTED_IMAGE_TYPES = {
   "image/webp": "webp",
 };
 
+const SUCCESS_MESSAGE =
+  "ፎርሙን በትክክል ሞልተው ጨርሰዋል ። የሞሉትን ፎርም ስልክዎ ላይ ያገኙታል።";
+
 const makeUniqueName = () => {
   try {
     if (
@@ -161,6 +165,7 @@ function DubaiForm() {
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [message, setMessage] = useState("");
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const previewRef = useRef(null);
 
@@ -192,6 +197,7 @@ function DubaiForm() {
   const updateField = (event) => {
     const { name, value } = event.target;
     setFormData((previous) => ({ ...previous, [name]: value }));
+    setRegistrationSuccess(false);
   };
 
   const handlePhoto = async (event) => {
@@ -200,14 +206,13 @@ function DubaiForm() {
 
     if (!file) return;
 
-    // Do not make a photo mandatory for registration.
-    // An invalid photo is rejected, but the form remains usable.
     if (!SUPPORTED_IMAGE_TYPES[file.type]) {
       setPhotoFile(null);
       setPhotoDataUrl("");
       setMessage(
         "Please choose a JPEG, PNG, or WebP image. Other image formats are not accepted."
       );
+      setRegistrationSuccess(false);
       input.value = "";
       return;
     }
@@ -216,6 +221,7 @@ function DubaiForm() {
       setPhotoFile(null);
       setPhotoDataUrl("");
       setMessage("Photo must be greater than 0 bytes and no larger than 5 MB.");
+      setRegistrationSuccess(false);
       input.value = "";
       return;
     }
@@ -228,6 +234,7 @@ function DubaiForm() {
       setPhotoDataUrl(dataUrl);
       setShowPreview(false);
       setMessage("");
+      setRegistrationSuccess(false);
     } catch (error) {
       console.error("Dubai photo validation error:", error);
       setPhotoFile(null);
@@ -235,6 +242,7 @@ function DubaiForm() {
       setMessage(
         "This image could not be opened. Please choose another JPEG, PNG, or WebP image."
       );
+      setRegistrationSuccess(false);
       input.value = "";
     }
   };
@@ -285,7 +293,6 @@ function DubaiForm() {
 
     const extension = SUPPORTED_IMAGE_TYPES[file.type];
 
-    // Double-check before uploading to Storage.
     if (!extension || file.size === 0 || file.size > MAX_PHOTO_SIZE) {
       throw new Error("The photo is not a supported image or exceeds 5 MB.");
     }
@@ -375,7 +382,8 @@ function DubaiForm() {
     );
   };
 
-  // PDF creation is optional for registration.
+  // PDF creation is optional for registration, but success is shown only
+  // after PDF generation completes successfully.
   const createPdf = async () => {
     const paper = document.querySelector("#dubai-print-area .dubai-paper");
 
@@ -524,6 +532,7 @@ function DubaiForm() {
 
   const handlePreview = () => {
     setMessage("");
+    setRegistrationSuccess(false);
     setShowPreview(true);
   };
 
@@ -531,10 +540,12 @@ function DubaiForm() {
     if (!showPreview) {
       setShowPreview(true);
       setMessage("Please open the preview, then click Download as PDF again.");
+      setRegistrationSuccess(false);
       return;
     }
 
     setMessage("");
+    setRegistrationSuccess(false);
 
     try {
       await downloadPdf();
@@ -553,16 +564,19 @@ function DubaiForm() {
     if (saving || downloading) return;
 
     if (!formData.full_name.trim()) {
+      setRegistrationSuccess(false);
       setMessage("እባክዎ ሙሉ ስም ያስገቡ። / Please enter the applicant's full name.");
       return;
     }
 
     setSaving(true);
+    setRegistrationSuccess(false);
     setMessage("ምዝገባው እየተካሄደ ነው... / Saving registration...");
 
     const warnings = [];
     let registrationId = null;
     let registrationSaved = false;
+    let pdfGenerated = false;
 
     try {
       // STEP 1: Save the registration FIRST.
@@ -593,10 +607,6 @@ function DubaiForm() {
       registrationSaved = true;
       registrationId = insertedRow?.id ?? null;
 
-      setMessage(
-        "ምዝገባው ተቀምጧል። ፎቶና PDF እየተሰሩ ነው... / Registration saved. Processing optional files..."
-      );
-
       // STEP 2: Attempt photo upload. Failure does not undo registration.
       if (photoFile && photoDataUrl) {
         try {
@@ -626,17 +636,17 @@ function DubaiForm() {
         warnings.push("No profile photo was attached");
       }
 
-      // STEP 3: Attempt PDF generation and upload.
-      // Any PDF error is reported as a warning, not a registration failure.
+      // STEP 3: Generate the PDF before showing the success message.
       try {
-        let pdfResult = null;
-
         if (!showPreview) {
           setShowPreview(true);
           await new Promise((resolve) => window.setTimeout(resolve, 300));
         }
 
-        pdfResult = await createPdf();
+        const pdfResult = await createPdf();
+
+        // PDF generation has completed successfully.
+        pdfGenerated = true;
 
         let pdfPath = null;
 
@@ -667,7 +677,7 @@ function DubaiForm() {
           warnings.push("PDF uploaded but could not be linked to registration");
         }
 
-        // Download failure must never change the registration result.
+        // Download failure does not change the PDF generation result.
         try {
           downloadBlob(pdfResult.pdfBlob, pdfResult.filename);
         } catch (downloadError) {
@@ -680,24 +690,32 @@ function DubaiForm() {
       }
 
       if (warnings.length) {
-        setMessage(
-          `ምዝገባው በተሳካ ሁኔታ ተቀምጧል። ማስታወሻ፦ ${warnings.join("; ")}. / Registration saved successfully, but: ${warnings.join("; ")}.`
-        );
+        console.warn("Dubai registration optional-file warnings:", warnings);
+      }
+
+      // Show success only if registration was saved AND PDF generation finished.
+      if (registrationSaved && pdfGenerated) {
+        setRegistrationSuccess(true);
+        setMessage(SUCCESS_MESSAGE);
       } else {
+        setRegistrationSuccess(false);
         setMessage(
-          "ምዝገባው ተሳክቷል። PDF ተመዝግቦ ወርዷል። / Registration saved successfully and PDF downloaded."
+          "ምዝገባው ተቀምጧል፣ ግን PDF መፍጠር አልተሳካም። / Registration was saved, but PDF generation failed. Please try again."
         );
       }
     } catch (error) {
       console.error("Dubai registration error:", error);
 
-      if (registrationSaved) {
+      if (registrationSaved && pdfGenerated) {
+        setRegistrationSuccess(true);
+        setMessage(SUCCESS_MESSAGE);
+      } else if (registrationSaved) {
+        setRegistrationSuccess(false);
         setMessage(
-          `Registration was saved, but an optional operation failed: ${
-            error?.message || "Please check the saved registration."
-          }`
+          "ምዝገባው ተቀምጧል፣ ግን PDF መፍጠር አልተሳካም። / Registration was saved, but PDF generation failed. Please try again."
         );
       } else {
+        setRegistrationSuccess(false);
         setMessage(
           `ምዝገባው አልተሳካም። / Registration failed: ${
             error?.message || "Please try again."
@@ -781,8 +799,12 @@ function DubaiForm() {
           </section>
         </form>
 
-        {message && (
-          <p className="dubai-form-message" role="status" aria-live="polite">
+        {message && !showPreview && !registrationSuccess && (
+          <p
+            className="dubai-form-message"
+            role="status"
+            aria-live="polite"
+          >
             {message}
           </p>
         )}
@@ -916,22 +938,12 @@ function DubaiForm() {
               onClick={() => {
                 setShowPreview(false);
                 setMessage("");
+                setRegistrationSuccess(false);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
               disabled={saving || downloading}
             >
               ወደ ፎርሙ ተመለስ / Back to Form
-            </button>
-
-            <button
-              type="button"
-              className="dubai-button dubai-button-outline"
-              onClick={handleSavePdf}
-              disabled={saving || downloading}
-            >
-              {downloading
-                ? "PDF በማዘጋጀት ላይ... / Creating PDF..."
-                : "አስቀምጥ ፕሪንት / Download as PDF"}
             </button>
 
             <button
@@ -941,13 +953,25 @@ function DubaiForm() {
               disabled={saving || downloading}
             >
               {saving
-                ? "በመመዝገብ ላይ... / Registering..."
+                ? "በመመዝገብ ላይ ነው ትንሽ ይጠብቁ።.. / የሞሉትን ፎርም የ እርስዎ ስልክ ላይ ያገኙታል..."
                 : "Submit the form /ፎርሙን አስገባ"}
             </button>
           </div>
 
+          {message && (
+            <p
+              className={`dubai-form-message ${
+                registrationSuccess ? "dubai-success-message" : ""
+              }`}
+              role="status"
+              aria-live="polite"
+            >
+              {message}
+            </p>
+          )}
+
           <p className="dubai-print-note">
-            PDF ፋይሉ የእርሶ ፋይል ውስጥ ይቀመጣል။
+            PDF ፋይሉ የእርሶ ፋይል ውስጥ ይቀመጣል።
             <br />
             The PDF will be downloaded to your Downloads folder.
           </p>

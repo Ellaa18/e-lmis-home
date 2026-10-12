@@ -107,17 +107,7 @@ function ApplicationPage() {
         </section>
 
         <section className="country-section" id="country-forms">
-          <div className="application-section-heading">
-            <span className="section-eyebrow">SELECT A COUNTRY</span>
-            <h2>Country Application Forms</h2>
-            <h3 lang="am">የአገር ማመልከቻ ቅጾች</h3>
-
-            <p>Select the destination that matches your application.</p>
-
-            <p lang="am">
-              ከማመልከቻዎ ጋር የሚስማማውን የመዳረሻ አገር ይምረጡ።
-            </p>
-          </div>
+        
 
           <div className="country-grid">
             {countries.map((country) => (
@@ -126,7 +116,7 @@ function ApplicationPage() {
                 key={country.id}
               >
                 <div className="country-card-top">
-                  <span className="country-tag">APPLICATION FORM</span>
+                  
 
                   <div className="country-flag-wrap">
                     <img

@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -11,6 +10,9 @@ const today = new Date().toISOString().split("T")[0];
 const PDF_BUCKET = "kuwait-registration-pdfs";
 const PHOTO_BUCKET = "kuwait-applicant-photos";
 const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+
+const SUCCESS_MESSAGE =
+  "ፎርሙን በትክክል ሞልተው ጨርሰዋል ። የሞሉትን ፎርም ስልክዎ ላይ ያገኙታል።";
 
 const SUPPORTED_IMAGE_TYPES = {
   "image/jpeg": "jpg",
@@ -118,7 +120,11 @@ function KuwaitForm() {
       }
 
       if (file.size <= 0 || file.size > MAX_PHOTO_SIZE) {
-        reject(new Error("The photo must be larger than 0 bytes and no more than 5 MB."));
+        reject(
+          new Error(
+            "The photo must be larger than 0 bytes and no more than 5 MB."
+          )
+        );
         return;
       }
 
@@ -126,19 +132,29 @@ function KuwaitForm() {
       const image = new Image();
 
       image.onload = () => {
-        const valid = image.naturalWidth > 0 && image.naturalHeight > 0;
+        const valid =
+          image.naturalWidth > 0 && image.naturalHeight > 0;
+
         URL.revokeObjectURL(objectUrl);
 
         if (valid) {
           resolve(file);
         } else {
-          reject(new Error("This image cannot be decoded. Please choose another image."));
+          reject(
+            new Error(
+              "This image cannot be decoded. Please choose another image."
+            )
+          );
         }
       };
 
       image.onerror = () => {
         URL.revokeObjectURL(objectUrl);
-        reject(new Error("This image is damaged or unsupported. Please choose another image."));
+        reject(
+          new Error(
+            "This image is damaged or unsupported. Please choose another image."
+          )
+        );
       };
 
       image.src = objectUrl;
@@ -249,7 +265,10 @@ function KuwaitForm() {
           });
         }
 
-        if (typeof image.decode === "function" && image.naturalWidth > 0) {
+        if (
+          typeof image.decode === "function" &&
+          image.naturalWidth > 0
+        ) {
           try {
             await image.decode();
           } catch (error) {
@@ -311,7 +330,9 @@ function KuwaitForm() {
       transform: "none",
     });
 
-    const tableGrid = pdfPaper.querySelector(".kuwait-paper-table-grid");
+    const tableGrid = pdfPaper.querySelector(
+      ".kuwait-paper-table-grid"
+    );
 
     if (tableGrid) {
       Object.assign(tableGrid.style, {
@@ -323,7 +344,9 @@ function KuwaitForm() {
       });
     }
 
-    const signatures = pdfPaper.querySelector(".kuwait-paper-signatures");
+    const signatures = pdfPaper.querySelector(
+      ".kuwait-paper-signatures"
+    );
 
     if (signatures) {
       Object.assign(signatures.style, {
@@ -334,9 +357,15 @@ function KuwaitForm() {
     }
 
     // The photo is optional; remove an empty photo frame in the PDF copy.
-    const photoFrame = pdfPaper.querySelector(".kuwait-paper-photo");
-    const sourcePhoto = originalPaper.querySelector(".kuwait-paper-photo img");
-    const pdfPhoto = pdfPaper.querySelector(".kuwait-paper-photo img");
+    const photoFrame = pdfPaper.querySelector(
+      ".kuwait-paper-photo"
+    );
+    const sourcePhoto = originalPaper.querySelector(
+      ".kuwait-paper-photo img"
+    );
+    const pdfPhoto = pdfPaper.querySelector(
+      ".kuwait-paper-photo img"
+    );
 
     if (sourcePhoto && pdfPhoto && sourcePhoto.src) {
       pdfPhoto.src = sourcePhoto.currentSrc || sourcePhoto.src;
@@ -478,7 +507,9 @@ function KuwaitForm() {
     if (!validateForm()) return;
 
     if (!showPreview) {
-      setMessage("Please click Preview Form and check the form before registering.");
+      setMessage(
+        "Please click Preview Form and check the form before registering."
+      );
       setMessageType("error");
       return;
     }
@@ -509,7 +540,9 @@ function KuwaitForm() {
         contact_full_name: formData.contact_full_name.trim() || null,
         contact_gender: formData.contact_gender || null,
         contact_age:
-          formData.contact_age === "" ? null : Number(formData.contact_age),
+          formData.contact_age === ""
+            ? null
+            : Number(formData.contact_age),
         contact_occupation: formData.contact_occupation.trim() || null,
         contact_phone: formData.contact_phone.trim() || null,
         profile_photo_url: null,
@@ -548,32 +581,42 @@ function KuwaitForm() {
               .eq("id", registrationId);
 
             if (error) {
-              warnings.push("Photo uploaded, but its URL could not be saved.");
+              warnings.push(
+                "Photo uploaded, but its URL could not be saved."
+              );
             }
           }
         } catch (error) {
           console.warn("Optional photo upload failed:", error);
-          warnings.push("Profile photo was not saved; registration is complete.");
+          warnings.push(
+            "Profile photo was not saved; registration is complete."
+          );
         }
       }
 
-      // STEP 3: Attempt PDF creation, upload and download independently.
+      // STEP 3: Generate the PDF. Success is shown only if this succeeds.
       let pdfBlob = null;
       let fileName = getPdfFileName();
+      let pdfGenerated = false;
 
       try {
         setMessage("Registration saved. Generating PDF...");
+
         const generated = await createPdfBlob();
+
         pdfBlob = generated.blob;
         fileName = generated.fileName;
+        pdfGenerated = true;
       } catch (error) {
         console.warn("PDF generation failed:", error);
         warnings.push("PDF generation failed.");
       }
 
+      // PDF upload is optional; it does not determine whether PDF generation succeeded.
       if (pdfBlob) {
         try {
           setMessage("Registration saved. Uploading PDF...");
+
           pdfPath = await uploadPdf(pdfBlob, fileName);
 
           if (registrationId) {
@@ -583,12 +626,16 @@ function KuwaitForm() {
               .eq("id", registrationId);
 
             if (error) {
-              warnings.push("PDF uploaded, but its path could not be saved to the registration.");
+              warnings.push(
+                "PDF uploaded, but its path could not be saved to the registration."
+              );
             }
           }
         } catch (error) {
           console.warn("PDF upload failed:", error);
-          warnings.push("PDF upload failed; the registration is still saved.");
+          warnings.push(
+            "PDF upload failed; the registration is still saved."
+          );
         }
 
         try {
@@ -599,16 +646,19 @@ function KuwaitForm() {
         }
       }
 
-      if (warnings.length > 0) {
-        setMessage(
-          `Registration saved successfully! ${warnings.join(" ")}`
-        );
-        setMessageType("info");
+      // Show the exact success message only when registration and PDF generation succeed.
+      if (pdfGenerated) {
+        setMessage(SUCCESS_MESSAGE);
+        setMessageType("success");
       } else {
         setMessage(
-          "Registration saved successfully! Your PDF was generated and downloaded."
+          "Registration was saved, but PDF generation failed. Please try downloading the PDF again."
         );
-        setMessageType("success");
+        setMessageType("error");
+      }
+
+      if (warnings.length > 0) {
+        console.warn("Registration completed with notices:", warnings);
       }
     } catch (error) {
       console.error("Kuwait registration error:", error);
@@ -696,11 +746,12 @@ function KuwaitForm() {
 
       <main className="kuwait-main">
         <section className="kuwait-intro">
-          <h2>Applicant Registration Form</h2>
+          <h2>የኩዌት ምዝገባ ፎርም</h2>
+          <h2>kuwait Registration Form</h2>
           <p>
-            Please complete the applicant details, upload a recent profile
-            photo, and review the form before registering.
+            እባክዎ ሁሉንም መረጃ በትክክል ይሙሉ።
           </p>
+          <p>Please complete all information accurately</p>
         </section>
 
         <form
@@ -731,8 +782,8 @@ function KuwaitForm() {
             </div>
 
             <div className="kuwait-photo-details">
-              <h3>Applicant Photo / ፎቶ</h3>
-              <p>Upload a clear image. JPG, PNG, or WEBP; maximum 5MB. Optional.</p>
+              <h3>Applicant Photo /የ አመልካች ፎቶ</h3>
+              <p>Upload a clear image. maximum 5MB.</p>
 
               <input
                 ref={photoInputRef}
@@ -747,7 +798,7 @@ function KuwaitForm() {
                 type="button"
                 onClick={() => photoInputRef.current?.click()}
               >
-                Choose Photo
+                Choose Photo / ፎቶ ይምረጡ
               </button>
 
               {photoFile && (
@@ -765,7 +816,9 @@ function KuwaitForm() {
           </div>
 
           <div className="kuwait-input-grid">
-            {renderField("Full Name / ሙሉ ስም", "full_name", { required: true })}
+            {renderField("Full Name / ሙሉ ስም", "full_name", {
+              required: true,
+            })}
             {renderField("Gender / ፆታ", "gender", {
               type: "select",
               options: [
@@ -773,10 +826,25 @@ function KuwaitForm() {
                 { value: "Female", label: "Female / ሴት" },
               ],
             })}
-            {renderField("Age / እድሜ", "age", { type: "number", min: 0, max: 120 })}
-            {renderField("Height (cm) / ቁመት", "height", { type: "number", min: 0, step: "0.1" })}
-            {renderField("Weight (kg) / ክብደት", "weight", { type: "number", min: 0, step: "0.1" })}
-            {renderField("Phone Number / ስልክ ቁጥር", "phone", { type: "tel", required: true })}
+            {renderField("Age / እድሜ", "age", {
+              type: "number",
+              min: 0,
+              max: 120,
+            })}
+            {renderField("Height (cm) / ቁመት", "height", {
+              type: "number",
+              min: 0,
+              step: "0.1",
+            })}
+            {renderField("Weight (kg) / ክብደት", "weight", {
+              type: "number",
+              min: 0,
+              step: "0.1",
+            })}
+            {renderField("Phone Number / ስልክ ቁጥር", "phone", {
+              type: "tel",
+              required: true,
+            })}
             {renderField("Education Level / የትምህርት ደረጃ", "education_level")}
           </div>
 
@@ -793,9 +861,13 @@ function KuwaitForm() {
             {renderField("Woreda / ወረዳ", "woreda")}
             {renderField("Kebele / ቀበሌ", "kebele")}
             {renderField("Nationality / ዜግነት", "nationality")}
-            {renderField("Date of Birth / የትውልድ ዘመን", "date_of_birth", { type: "date" })}
+            {renderField("Date of Birth / የትውልድ ዘመን", "date_of_birth", {
+              type: "date",
+            })}
             {renderField("Place of Birth / የትውልድ ቦታ", "place_of_birth")}
-            {renderField("Form Date / ቅጹ የተሞላበት ቀን", "form_date", { type: "date" })}
+            {renderField("Form Date / ቅጹ የተሞላበት ቀን", "form_date", {
+              type: "date",
+            })}
           </div>
 
           <div className="kuwait-section-title">
@@ -815,19 +887,27 @@ function KuwaitForm() {
                 { value: "Female", label: "Female / ሴት" },
               ],
             })}
-            {renderField("Contact Age / እድሜ", "contact_age", { type: "number", min: 0, max: 120 })}
+            {renderField("Contact Age / እድሜ", "contact_age", {
+              type: "number",
+              min: 0,
+              max: 120,
+            })}
             {renderField("Occupation / ስራ", "contact_occupation")}
-            {renderField("Contact Phone / ስልክ ቁጥር", "contact_phone", { type: "tel" })}
+            {renderField("Contact Phone / ስልክ ቁጥር", "contact_phone", {
+              type: "tel",
+            })}
           </div>
 
-          {message && (
-            <div
-              className={`kuwait-message kuwait-message-${messageType}`}
-              role="status"
-            >
-              {message}
-            </div>
-          )}
+          {/* Keep the success message exclusively below Submit. */}
+          {message &&
+            !(messageType === "success" && message === SUCCESS_MESSAGE) && (
+              <div
+                className={`kuwait-message kuwait-message-${messageType}`}
+                role="status"
+              >
+                {message}
+              </div>
+            )}
 
           <div className="kuwait-form-actions">
             <button
@@ -835,14 +915,9 @@ function KuwaitForm() {
               type="submit"
               disabled={loading}
             >
-              Preview Form
+              የሞሉትን ፎርም ይመልከቱ / Preview Form
             </button>
           </div>
-
-          <p className="kuwait-privacy-note">
-            Your registration is saved to Supabase first. Photo and PDF uploads
-            are optional follow-up tasks and cannot cancel a saved registration.
-          </p>
         </form>
 
         {showPreview && (
@@ -866,7 +941,9 @@ function KuwaitForm() {
               <div className="kuwait-paper-content">
                 <div className="kuwait-paper-top">
                   <div className="kuwait-paper-photo">
-                    {photoPreview && <img src={photoPreview} alt="Applicant" />}
+                    {photoPreview && (
+                      <img src={photoPreview} alt="Applicant" />
+                    )}
                   </div>
 
                   <div className="kuwait-paper-date">
@@ -960,11 +1037,15 @@ function KuwaitForm() {
                 <div className="kuwait-paper-signatures">
                   <p>
                     የተመዝጋቢው ስም :
-                    <strong>{formData.full_name || "________________________"}</strong>
+                    <strong>
+                      {formData.full_name || "________________________"}
+                    </strong>
                   </p>
                   <p>
                     የቅርብ ተጠሪ ስም :
-                    <strong>{formData.contact_full_name || "________________________"}</strong>
+                    <strong>
+                      {formData.contact_full_name || "________________________"}
+                    </strong>
                   </p>
                 </div>
               </div>
@@ -972,22 +1053,26 @@ function KuwaitForm() {
 
             <div className="kuwait-preview-bottom-actions">
               <button
-                className="kuwait-button kuwait-button-light"
-                type="button"
-                onClick={handleDownloadOnly}
-                disabled={loading}
-              >
-                {loading ? "Preparing PDF..." : "Download PDF"}
-              </button>
-
-              <button
                 className="kuwait-button kuwait-button-primary"
                 type="button"
                 onClick={handleRegisterAndPrint}
                 disabled={loading}
               >
-                {loading ? "Saving Registration..." : "Register & Download PDF"}
+                {loading
+                  ? "በመመዝገብ ላይ ነው ትንሽ ይጠብቁ.../ ፎርሙን የ እርስዎ ስልክ ላይ ያገኙታል..."
+                  : "submit the form/ፎርሙን አስገባ"}
               </button>
+
+              {/* The registration success message appears only here, below Submit. */}
+              {message && (
+                <div
+                  className={`kuwait-message kuwait-message-${messageType}`}
+                  role="status"
+                  aria-live="polite"
+                >
+                  {message}
+                </div>
+              )}
             </div>
           </section>
         )}

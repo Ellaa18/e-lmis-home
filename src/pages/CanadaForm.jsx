@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -10,6 +11,9 @@ import "../styles/CanadaForm.css";
 const PDF_BUCKET = "canada-registration-pdfs";
 const PHOTO_BUCKET = "canada-applicant-photos";
 const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+
+const SUCCESS_MESSAGE =
+  "ፎርሙን በትክክል ሞልተው ጨርሰዋል ። የሞሉትን ፎርም ስልክዎ ላይ ያገኙታል።";
 
 const createUniqueId = () => {
   try {
@@ -123,9 +127,7 @@ const normalizePhoto = async (file) => {
   const supportedTypes = ["image/jpeg", "image/png", "image/webp"];
 
   if (!supportedTypes.includes(file.type.toLowerCase())) {
-    throw new Error(
-      "JPG, PNG ወይም WebP ፎቶ ብቻ ይምረጡ።"
-    );
+    throw new Error("JPG, PNG ወይም WebP ፎቶ ብቻ ይምረጡ።");
   }
 
   if (file.size > MAX_PHOTO_SIZE) {
@@ -223,6 +225,9 @@ function CanadaForm() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  // Success appears only after registration and PDF generation succeed.
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const previewRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -619,10 +624,13 @@ function CanadaForm() {
     if (busy || isDownloading) return;
 
     if (!formData.full_name.trim()) {
+      setRegistrationSuccess(false);
       setMessage("እባክዎ የተመዝጋቢውን ሙሉ ስም ያስገቡ።");
       return;
     }
 
+    // Hide any previous success message when a new registration is attempted.
+    setRegistrationSuccess(false);
     setBusy(true);
     setMessage("ምዝገባው ወደ Supabase እየተመዘገበ ነው...");
 
@@ -655,6 +663,7 @@ function CanadaForm() {
 
       registrationId = insertedRow?.id;
 
+      // Do not show success yet. Wait for PDF generation to finish successfully.
       if (!registrationId) {
         warnings.push(
           "ምዝገባው ተልኳል፣ ግን የምዝገባ ID ስለሌለ ፋይሎችን ማያያዝ አልተቻለም"
@@ -722,15 +731,22 @@ function CanadaForm() {
         }
       }
 
+      // Show success only if registration was saved and PDF generation completed.
+      setRegistrationSuccess(Boolean(registrationId && generatedPdf));
+
+      // Keep warnings in the existing message area without duplicating the success text.
       if (warnings.length) {
         setMessage(
-          `ምዝገባው ተሳክቷል። ${warnings.join("፤ ")}። የምዝገባው መረጃ በSupabase ተቀምጧል።`
+          `ምዝገባው በSupabase ተቀምጧል። ${warnings.join("፤ ")}።`
         );
       } else {
-        setMessage("ምዝገባው ተሳክቷል። PDF ተመዝግቦ ወርዷል።");
+        setMessage("");
       }
     } catch (error) {
       console.error("Canada registration error:", error);
+
+      // A failed registration must never show the success message.
+      setRegistrationSuccess(false);
 
       setMessage(
         error?.message ||
@@ -807,7 +823,7 @@ function CanadaForm() {
 
           <div className="canada-photo-controls">
             <label className="canada-upload-button" htmlFor="canada-photo">
-              Upload Profile Photo
+              ፎቶ ያስገቡ
             </label>
 
             <input
@@ -820,7 +836,7 @@ function CanadaForm() {
               hidden
             />
 
-            <p>JPG, PNG ወይም WebP፤ ከ5MB በታች።</p>
+            <p> ከ5MB በታች።</p>
             <p>ፎቶ ካልተሳካ ምዝገባውን ማድረግ ይችላሉ።</p>
           </div>
         </div>
@@ -853,7 +869,7 @@ function CanadaForm() {
             onClick={handlePreview}
             disabled={isBusy}
           >
-            Preview
+            የሞሉትን ፎርም ይመልከቱ
           </button>
         </div>
       </main>
@@ -950,22 +966,6 @@ function CanadaForm() {
           <div className="canada-preview-actions">
             <button
               type="button"
-              className="canada-button"
-              onClick={downloadPdf}
-              disabled={isBusy}
-            >
-              {isDownloading ? (
-                <>
-                  <span className="canada-spinner" aria-hidden="true" />
-                  Saving PDF...
-                </>
-              ) : (
-                "Print"
-              )}
-            </button>
-
-            <button
-              type="button"
               className="canada-button canada-register-button"
               onClick={handleRegisterAndPrint}
               disabled={isBusy}
@@ -973,12 +973,34 @@ function CanadaForm() {
               {busy ? (
                 <>
                   <span className="canada-spinner" aria-hidden="true" />
-                  Registering...
+                  በመመዝገብ ላይ ነው ትንሽ ይጠብቁ.../ የሞሉትን ፎርም የ እርስዎ ስልክ ላይ ያገኙታል...
                 </>
               ) : (
-                "Register and Print"
+                "Submit the form / ፎርሙን አስገባ "
               )}
             </button>
+
+            {/* Success appears below Submit only after registration and PDF generation succeed. */}
+            {registrationSuccess && (
+              <p
+                className="canada-registration-success"
+                role="status"
+                aria-live="polite"
+                style={{
+                  marginTop: "14px",
+                  padding: "14px 16px",
+                  borderRadius: "8px",
+                  backgroundColor: "#e8f7ed",
+                  color: "#176534",
+                  border: "1px solid #a8dfb8",
+                  textAlign: "center",
+                  fontWeight: 600,
+                  lineHeight: 1.8,
+                }}
+              >
+                {SUCCESS_MESSAGE}
+              </p>
+            )}
           </div>
         </section>
       )}
