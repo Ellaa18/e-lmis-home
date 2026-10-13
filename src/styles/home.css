@@ -213,9 +213,9 @@
   border-radius: 10px;
   background: #fff;
   color: var(--primary);
-  font-size: 35px;
+  font-size: 55px;
   font-weight: 800;
-  line-height: 1.5;
+  line-height: 4;
   text-align: center;
   cursor: pointer;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
@@ -1677,7 +1677,7 @@
     margin-top: 23px;
     padding: 12px;
     gap: 7px;
-    font-size: 12px;
+    font-size: 25px;
   }
 
   .welcome-image-slider {
