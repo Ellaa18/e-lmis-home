@@ -351,13 +351,13 @@
 
 .kuwait-button-light {
   border-color: #cfdaea;
-  background: #ffffff;
-  color: #1a4c88;
+  background: #0d1499;
+  color: #e9ecef;
 }
 
 .kuwait-button-light:hover:not(:disabled) {
-  border-color: #8eb1df;
-  background: #f0f6ff;
+  border-color: #d8e1ed;
+  background: #266bd2;
 }
 
 .kuwait-privacy-note {
