@@ -6,7 +6,8 @@ import HelpGuidance from "../components/HelpingGuides";
 import "../styles/application.css";
 
 const countries = [
-  {
+  { 
+    number: "01",
     id: "dubai",
     name: "Dubai (UAE)",
     amharicName: "ዱባይ (የተባበሩት የዓረብ ኤምሬቶች)",
@@ -16,8 +17,9 @@ const countries = [
     amharicDescription:
       "ዱባይ በተባበሩት የዓረብ ኤምሬቶች ውስጥ ዋና የንግድና የሥራ መዳረሻ ናት። ከማመልከትዎ በፊት ከሥራ፣ ከሥራ ፈቃድ፣ ከቪዛ እና ከሰነዶች ጋር የተያያዙ መስፈርቶችን ያረጋግጡ።",
     color: "dubai",
-    buttonText: "Fill Dubai Form",
-    buttonAmharic: "የዱባይ ቅጽ ለመሙላት ይህን ይንኩ",
+  
+    buttonText: "የዱባይ ቅጽ ለመሙላት ይህን ይንኩ",
+    
   },
   {
     id: "kuwait",
@@ -29,8 +31,8 @@ const countries = [
     amharicDescription:
       "ኩዌት በተለያዩ የሥራ ዘርፎች የቅጥር ዕድሎች ያሉባት አገር ናት። ማመልከቻዎን ከመሙላትዎ በፊት ስለ ሥራዎ፣ ስለ ሥራ ፈቃድ፣ ስለ ቪዛ እና ስለ ደጋፊ ሰነዶች መስፈርቶች ያረጋግጡ።",
     color: "kuwait",
-    buttonText: "Fill Kuwait Form",
-    buttonAmharic: "የኩዌት ቅጽ ለመሙላት ይህን ይንኩ",
+    
+    buttonText: "የኩዌት ቅጽ ለመሙላት ይህን ይንኩ",
   },
   {
     id: "canada",
@@ -42,8 +44,8 @@ const countries = [
     amharicDescription:
       "ካናዳ የተለያዩ የሥራና የኢሚግሬሽን መንገዶች ያሏት አገር ናት። እያንዳንዱ ፕሮግራም የራሱ የብቃትና የሰነድ መስፈርቶች ስላሉት ማመልከቻዎን ከመጀመርዎ በፊት ተገቢውን ፕሮግራምና ኦፊሴላዊ መመሪያ ይመልከቱ።",
     color: "canada",
-    buttonText: "Fill Canada Form",
-    buttonAmharic: "የካናዳ ቅጽ ለመሙላት ይህን ይንኩ",
+    
+    buttonText: "የካናዳ ቅጽ ለመሙላት ይህን ይንኩ",
   },
 ];
 

@@ -1,6 +1,7 @@
 
 /* =========================================
    e-LMIS APPLICATION PAGE
+   Responsive desktop, tablet, and mobile
    ========================================= */
 
 .application-page {
@@ -10,7 +11,10 @@
   --app-text: #172b45;
   --app-muted: #63738a;
   --app-border: #e0e8f2;
+
+  width: 100%;
   min-height: 100vh;
+  overflow-x: hidden;
   background: #f5f8fc;
   color: var(--app-text);
   font-family: Arial, Helvetica, sans-serif;
@@ -31,7 +35,9 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* HEADER */
+/* =========================================
+   HEADER
+   ========================================= */
 
 .application-header {
   position: relative;
@@ -42,29 +48,30 @@
 }
 
 .application-header-inner {
-  width: min(1180px, calc(100% - 40px));
-  min-height: 86px;
-  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 28px;
+  gap: 20px;
+  width: min(1180px, calc(100% - 32px));
+  min-height: 76px;
+  margin: 0 auto;
 }
 
 .application-logo {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
   color: var(--app-blue-dark);
 }
 
 .application-logo img {
   display: block;
-  width: 57px;
-  height: 57px;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
   object-fit: contain;
-  border-radius: 10px;
+  border-radius: 9px;
 }
 
 .application-logo-text {
@@ -75,13 +82,13 @@
 
 .application-logo-text strong {
   color: var(--app-blue-dark);
-  font-size: 25px;
+  font-size: 23px;
   line-height: 1;
-  letter-spacing: -0.7px;
+  letter-spacing: -0.5px;
 }
 
 .application-logo-text small {
-  max-width: 260px;
+  max-width: 240px;
   color: #65748a;
   font-size: 10px;
   line-height: 1.4;
@@ -92,14 +99,14 @@
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 5px;
 }
 
 .application-nav a {
-  padding: 11px 14px;
-  border-radius: 9px;
+  padding: 10px 12px;
+  border-radius: 8px;
   color: #43546b;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   transition: color 0.2s ease, background 0.2s ease;
 }
@@ -110,17 +117,24 @@
   background: #eaf3ff;
 }
 
-/* HERO */
+/* =========================================
+   HERO
+   ========================================= */
 
 .application-hero {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 30px;
+  gap: 25px;
   overflow: hidden;
-  padding: 65px max(28px, calc((100% - 1120px) / 2)) 70px;
-  background: linear-gradient(120deg, #063d7b 0%, #075cb3 55%, #1687d9 100%);
+  padding: 48px max(24px, calc((100% - 1120px) / 2));
+  background: linear-gradient(
+    120deg,
+    #063d7b 0%,
+    #075cb3 55%,
+    #1687d9 100%
+  );
   color: #fff;
 }
 
@@ -134,17 +148,17 @@
 }
 
 .application-hero::before {
-  width: 370px;
-  height: 370px;
   top: -210px;
   right: 10%;
+  width: 370px;
+  height: 370px;
 }
 
 .application-hero::after {
-  width: 500px;
-  height: 500px;
   right: -140px;
   bottom: -360px;
+  width: 500px;
+  height: 500px;
 }
 
 .application-hero-content {
@@ -153,39 +167,40 @@
   max-width: 760px;
 }
 
-.application-hero-label {
+.application-hero-label,
+.application-eyebrow {
   display: inline-block;
-  margin-bottom: 17px;
+  margin-bottom: 14px;
   padding: 8px 12px;
   border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 50px;
   background: rgba(255, 255, 255, 0.1);
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 1.6px;
+  letter-spacing: 1.5px;
 }
 
 .application-hero h1 {
   margin: 0 0 10px;
-  font-size: clamp(30px, 4vw, 46px);
+  font-size: clamp(28px, 3.5vw, 43px);
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -1.1px;
+  line-height: 1.2;
+  letter-spacing: -0.7px;
 }
 
 .application-hero h2 {
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   color: #e4f1ff;
-  font-size: clamp(20px, 2.5vw, 27px);
-  line-height: 1.5;
+  font-size: clamp(18px, 2.2vw, 26px);
+  line-height: 1.6;
 }
 
 .application-hero p {
   max-width: 700px;
   margin: 8px 0;
   color: #eaf4ff;
-  font-size: 15px;
-  line-height: 1.9;
+  font-size: 14px;
+  line-height: 1.8;
 }
 
 .application-hero-decoration {
@@ -194,16 +209,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 130px;
+  height: 130px;
   flex-shrink: 0;
-  width: 150px;
-  height: 150px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
 }
 
 .application-hero-decoration span:first-child {
-  font-size: 60px;
+  font-size: 52px;
   transform: rotate(-15deg);
 }
 
@@ -212,93 +227,123 @@
   right: -5px;
   bottom: 1px;
   display: grid;
-  width: 53px;
-  height: 53px;
+  width: 46px;
+  height: 46px;
   place-items: center;
   border-radius: 50%;
   background: #fff;
-  font-size: 28px;
+  font-size: 25px;
 }
 
-/* SHARED SECTION HEADINGS */
+/* =========================================
+   SHARED SECTION HEADINGS
+   ========================================= */
 
 .country-section,
 .help-guidance {
-  width: min(1180px, calc(100% - 40px));
+  width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 64px 0;
+  padding: 44px 0;
 }
 
 .application-section-heading {
   max-width: 760px;
-  margin: 0 auto 34px;
+  margin: 0 auto 26px;
   text-align: center;
 }
 
 .section-eyebrow {
   display: inline-block;
-  margin-bottom: 12px;
+  margin-bottom: 9px;
   color: var(--app-blue);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 1.8px;
+  letter-spacing: 1.5px;
 }
 
 .application-section-heading h2 {
   margin: 0 0 7px;
   color: #123458;
-  font-size: clamp(25px, 3vw, 34px);
+  font-size: clamp(23px, 2.8vw, 32px);
   font-weight: 800;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 .application-section-heading h3 {
-  margin: 0 0 16px;
+  margin: 0 0 12px;
   color: var(--app-blue);
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1.6;
 }
 
 .application-section-heading p {
-  margin: 7px 0;
+  margin: 6px 0;
   color: var(--app-muted);
-  font-size: 14px;
-  line-height: 1.9;
+  font-size: 13px;
+  line-height: 1.8;
 }
 
-/* COUNTRY CARDS */
+/* =========================================
+   COUNTRY CARDS
+   Three columns on desktop
+   ========================================= */
 
 .country-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: stretch;
-  gap: 24px;
+  gap: 18px;
 }
 
 .country-card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  min-width: -1;
   overflow: hidden;
   border: 1px solid var(--app-border);
-  border-radius: 19px;
+  border-radius: 15px;
   background: #fff;
-  box-shadow: 0 7px 24px rgba(21, 55, 91, 0.06);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 5px 18px rgba(21, 55, 91, 0.06);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .country-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 17px 35px rgba(21, 55, 91, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 26px rgba(21, 55, 91, 0.12);
 }
+
+/* Country number badge */
+
+.country-card-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 12px 12px 0;
+  flex-shrink: 0;
+  border: 1px solid #d5e5fa;
+  border-radius: 10px;
+  background: #eaf3ff;
+  color: #0756a4;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+/* Country flag and header */
 
 .country-card-top {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 150px;
-  padding: 22px;
+  gap: 10px;
+  min-height: 112px;
+  padding: 14px;
   background: linear-gradient(130deg, #e8f3ff, #f6faff);
 }
 
@@ -316,27 +361,28 @@
 
 .country-tag {
   align-self: flex-start;
-  padding: 7px 10px;
+  max-width: 65%;
+  padding: 6px 8px;
   border: 1px solid #d4e5f8;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.9);
   color: #315b83;
   font-size: 9px;
   font-weight: 800;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.4px;
 }
 
 .country-flag-wrap {
   display: grid;
-  width: 105px;
-  height: 75px;
+  width: 84px;
+  height: 60px;
   flex-shrink: 0;
   place-items: center;
-  padding: 5px;
+  padding: 4px;
   border: 1px solid rgba(205, 218, 233, 0.8);
-  border-radius: 10px;
+  border-radius: 9px;
   background: #fff;
-  box-shadow: 0 5px 14px rgba(22, 52, 82, 0.1);
+  box-shadow: 0 4px 10px rgba(22, 52, 82, 0.08);
 }
 
 .country-flag {
@@ -344,64 +390,72 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  border-radius: 5px;
+  border-radius: 4px;
 }
+
+/* Country description */
 
 .country-card-content {
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: 25px 22px 22px;
+  padding: 18px 16px 16px;
 }
 
 .country-card-content h3 {
   margin: 0 0 5px;
   color: #16395e;
-  font-size: 25px;
+  font-size: 22px;
   font-weight: 800;
-  line-height: 1.3;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .country-card-content h4 {
-  margin: 0 0 22px;
+  margin: 0 0 15px;
   color: var(--app-blue);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 1.8;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .country-description {
-  margin-bottom: 17px;
+  margin-bottom: 13px;
 }
 
 .country-description h5 {
-  margin: 0 0 8px;
+  margin: 0 0 7px;
   color: #334f6d;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
 }
 
 .country-description p {
   margin: 0;
   color: #5b6d81;
-  font-size: 13px;
-  line-height: 1.85;
+  font-size: 12px;
+  line-height: 1.8;
   overflow-wrap: anywhere;
 }
 
 .country-description-am {
-  padding-top: 15px;
+  padding-top: 12px;
   border-top: 1px solid #edf1f6;
 }
 
 .country-description-am p {
   color: #465b71;
-  line-height: 2;
+  line-height: 1.9;
 }
+
+/* =========================================
+   LARGE, VISIBLE APPLY BUTTON
+   ========================================= */
 
 .country-card-action {
   margin-top: auto;
-  padding-top: 13px;
+  padding: 12px 16px 16px;
 }
 
 .country-form-button {
@@ -409,21 +463,32 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 5px;
+  justify-content: center;
+  gap: 4px;
   width: 100%;
-  min-height: 68px;
-  padding: 15px 45px 15px 17px;
-  border: 0;
+  min-height: 66px;
+  padding: 13px 45px 13px 15px;
+  border: 2px solid #0756a4;
   border-radius: 10px;
-  background: linear-gradient(115deg, #0756a4, #0876cc);
+  background: linear-gradient(135deg, #0876d1, #0756a4);
+  box-shadow: 0 5px 12px rgba(7, 86, 164, 0.22);
   color: #fff;
   text-align: left;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .country-form-button:hover {
-  background: linear-gradient(115deg, #06437f, #075ca8);
+  background: linear-gradient(135deg, #0756a4, #063b78);
+  box-shadow: 0 7px 16px rgba(7, 86, 164, 0.3);
+  transform: translateY(-1px);
+}
+
+.country-form-button:active {
+  transform: scale(0.98);
 }
 
 .country-form-button:focus-visible {
@@ -432,148 +497,159 @@
 }
 
 .country-form-button span:first-child {
+  color: #fff;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 900;
+  line-height: 1.4;
 }
 
 .country-form-button span:nth-child(2) {
-  color: #e4f2ff;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.6;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 .button-arrow {
   position: absolute;
   top: 50%;
-  right: 16px;
+  right: 14px;
+  color: #fff;
   font-size: 24px;
+  font-weight: 900;
   transform: translateY(-50%);
 }
 
-/* HELP AND GUIDANCE */
+/* =========================================
+   HELP AND GUIDANCE
+   ========================================= */
 
 .help-guidance {
   max-width: none;
   width: 100%;
-  padding: 65px max(20px, calc((100% - 1180px) / 2));
+  padding: 45px max(16px, calc((100% - 1180px) / 2));
   background: #edf4fc;
 }
 
 .guidance-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+  gap: 15px;
 }
 
 .guidance-card {
   min-width: 0;
-  padding: 23px 20px;
+  padding: 20px 17px;
   border: 1px solid #e0eaf6;
-  border-radius: 15px;
+  border-radius: 13px;
   background: #fff;
-  box-shadow: 0 5px 18px rgba(30, 65, 105, 0.045);
+  box-shadow: 0 4px 14px rgba(30, 65, 105, 0.045);
 }
 
 .guidance-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 19px;
+  margin-bottom: 15px;
 }
 
 .guidance-icon {
   display: grid;
-  width: 47px;
-  height: 47px;
+  width: 43px;
+  height: 43px;
   place-items: center;
-  border-radius: 12px;
+  border-radius: 11px;
   background: #e8f2ff;
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .guidance-number {
   color: #c5d7eb;
-  font-size: 27px;
+  font-size: 25px;
   font-weight: 800;
 }
 
 .guidance-card h3 {
   margin: 0 0 7px;
   color: #193b60;
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
 .guidance-card h4 {
-  margin: 0 0 15px;
+  margin: 0 0 12px;
   color: var(--app-blue);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.8;
 }
 
 .guidance-card p {
-  margin: 0 0 13px;
+  margin: 0 0 12px;
   color: #64758a;
   font-size: 12px;
-  line-height: 1.9;
+  line-height: 1.8;
   overflow-wrap: anywhere;
 }
 
 .guidance-card p.guidance-amharic {
   margin-bottom: 0;
-  padding-top: 13px;
+  padding-top: 12px;
   border-top: 1px solid #edf1f6;
   color: #435a72;
-  line-height: 2;
+  line-height: 1.9;
 }
 
-/* IMPORTANT INFORMATION */
+/* =========================================
+   IMPORTANT INFORMATION
+   ========================================= */
 
 .application-note {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
-  width: min(1120px, calc(100% - 40px));
-  margin: 0 auto 65px;
-  padding: 24px;
+  gap: 14px;
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto 45px;
+  padding: 20px;
   border: 1px solid #cfe2f7;
-  border-radius: 14px;
+  border-radius: 13px;
   background: #eaf4ff;
 }
 
 .application-note-icon {
   display: grid;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
   place-items: center;
   border-radius: 50%;
   background: #d0e7ff;
   color: var(--app-blue);
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 800;
 }
 
 .application-note h3,
 .application-note h4 {
-  margin: 0 0 8px;
+  margin: 0 0 7px;
   color: #154878;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .application-note h4 {
-  margin-top: 17px;
+  margin-top: 14px;
 }
 
 .application-note p {
   margin: 0;
   color: #4b6681;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.9;
+  overflow-wrap: anywhere;
 }
 
-/* FOOTER */
+/* =========================================
+   FOOTER
+   ========================================= */
 
 .application-footer {
   background: #082e57;
@@ -584,36 +660,36 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 35px;
-  width: min(1180px, calc(100% - 40px));
+  gap: 28px;
+  width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 42px 0 32px;
+  padding: 35px 0 28px;
 }
 
 .application-footer h3 {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   color: #fff;
-  font-size: 19px;
+  font-size: 18px;
 }
 
 .application-footer p {
   max-width: 610px;
   margin: 7px 0;
   color: #c3d5e8;
-  font-size: 13px;
-  line-height: 1.9;
+  font-size: 12px;
+  line-height: 1.8;
 }
 
 .application-footer-links {
   display: flex;
   flex-direction: column;
-  gap: 13px;
-  min-width: 180px;
+  gap: 12px;
+  min-width: 150px;
 }
 
 .application-footer-links a {
   color: #e1edfa;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   transition: color 0.2s ease;
 }
@@ -623,7 +699,7 @@
 }
 
 .application-footer-bottom {
-  padding: 17px 20px;
+  padding: 14px 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   color: #b9cde2;
   font-size: 11px;
@@ -631,43 +707,80 @@
   text-align: center;
 }
 
-/* RESPONSIVE */
+/* =========================================
+   TABLET
+   ========================================= */
 
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
+  .application-header-inner {
+    gap: 12px;
+  }
+
+  .application-nav a {
+    padding: 9px 8px;
+    font-size: 11px;
+  }
+
+  .application-logo-text strong {
+    font-size: 21px;
+  }
+
   .country-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .country-card-top {
+    gap: 7px;
+    padding: 11px;
+  }
+
+  .country-flag-wrap {
+    width: 70px;
+    height: 52px;
+  }
+
+  .country-card-content {
+    padding: 15px 12px 12px;
+  }
+
+  .country-card-content h3 {
+    font-size: 20px;
+  }
+
+  .country-card-action {
+    padding: 10px 12px 12px;
   }
 
   .guidance-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .application-hero-decoration {
-    width: 120px;
-    height: 120px;
-  }
-
-  .application-hero-decoration span:first-child {
-    font-size: 48px;
-  }
 }
 
-@media (max-width: 700px) {
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 600px) {
   .application-header-inner {
-    width: calc(100% - 28px);
-    flex-direction: column;
     align-items: flex-start;
-    gap: 14px;
-    padding: 15px 0;
+    flex-direction: column;
+    gap: 12px;
+    width: calc(100% - 24px);
+    padding: 12px 0;
   }
 
   .application-logo img {
-    width: 48px;
-    height: 48px;
+    width: 43px;
+    height: 43px;
   }
 
   .application-logo-text strong {
-    font-size: 22px;
+    font-size: 20px;
+  }
+
+  .application-logo-text small {
+    max-width: 260px;
+    font-size: 9px;
   }
 
   .application-nav {
@@ -677,99 +790,350 @@
   }
 
   .application-nav a {
-    padding: 9px 10px;
-    font-size: 11px;
+    padding: 8px 9px;
+    font-size: 10px;
   }
 
   .application-hero {
-    padding: 45px 22px;
+    padding: 34px 17px;
   }
 
   .application-hero-decoration {
     display: none;
   }
 
+  .application-hero-label,
+  .application-eyebrow {
+    margin-bottom: 11px;
+    padding: 7px 9px;
+    font-size: 9px;
+  }
+
+  .application-hero h1 {
+    font-size: clamp(25px, 7vw, 34px);
+    line-height: 1.25;
+  }
+
+  .application-hero h2 {
+    margin-bottom: 12px;
+    font-size: 19px;
+  }
+
   .application-hero p {
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.85;
   }
 
   .country-section {
-    width: calc(100% - 28px);
-    padding: 45px 0;
+    width: calc(100% - 24px);
+    padding: 32px 0;
   }
+
+  .application-section-heading {
+    margin-bottom: 20px;
+  }
+
+  .application-section-heading h2 {
+    font-size: 24px;
+  }
+
+  .application-section-heading h3 {
+    font-size: 17px;
+  }
+
+  .application-section-heading p {
+    font-size: 12px;
+  }
+
+  /* Keep country cards compact on mobile */
 
   .country-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 13px;
+  }
+
+  .country-card {
+    display: grid;
+    grid-template-columns: 43px minmax(0, 1fr);
+    column-gap: 9px;
+    align-items: start;
+    border-radius: 12px;
+  }
+
+  .country-card-number {
+    grid-column: 1;
+    grid-row: 1;
+    width: 34px;
+    height: 34px;
+    margin: 13px 0 0 10px;
+    border-radius: 9px;
+    font-size: 13px;
   }
 
   .country-card-top {
-    min-height: 125px;
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 75px;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 10px 8px 0;
+    background: transparent;
+  }
+
+  .country-card-dubai .country-card-top,
+  .country-card-kuwait .country-card-top,
+  .country-card-canada .country-card-top {
+    background: transparent;
+  }
+
+  .country-tag {
+    max-width: calc(100% - 65px);
+    padding: 5px 6px;
+    font-size: 8px;
+    letter-spacing: 0.2px;
+  }
+
+  .country-flag-wrap {
+    width: 58px;
+    height: 42px;
+    padding: 3px;
+    border-radius: 7px;
   }
 
   .country-card-content {
-    padding: 23px 20px 20px;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    padding: 0 13px 10px;
+  }
+
+  .country-card-content h3 {
+    margin-bottom: 3px;
+    font-size: 19px;
+  }
+
+  .country-card-content h4 {
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .country-description {
+    margin-bottom: 8px;
+  }
+
+  .country-description h5 {
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+
+  .country-description p {
+    font-size: 11px;
+    line-height: 1.65;
+  }
+
+  .country-description-am {
+    padding-top: 8px;
+  }
+
+  .country-description-am p {
+    line-height: 1.75;
+  }
+
+  /* Bold, full-width button for easy tapping */
+
+  .country-card-action {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin: 0;
+    padding: 4px 12px 12px;
+  }
+
+  .country-form-button {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 49px;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: 9px;
+    background: linear-gradient(110deg, #0876d1, #0756a4);
+    box-shadow: 0 4px 10px rgba(7, 86, 164, 0.24);
+  }
+
+  .country-form-button span:first-child {
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  .country-form-button span:nth-child(2) {
+    margin-left: auto;
+    font-size: 10px;
+    text-align: right;
+  }
+
+  .button-arrow {
+    position: static;
+    flex-shrink: 0;
+    font-size: 22px;
+    transform: none;
   }
 
   .help-guidance {
-    padding: 45px 14px;
+    padding: 34px 12px;
+  }
+
+  .guidance-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .guidance-card {
+    padding: 14px 12px;
+    border-radius: 11px;
+  }
+
+  .guidance-card-top {
+    margin-bottom: 12px;
+  }
+
+  .guidance-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 19px;
+  }
+
+  .guidance-number {
+    font-size: 20px;
+  }
+
+  .guidance-card h3 {
+    font-size: 14px;
+  }
+
+  .guidance-card h4 {
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+
+  .guidance-card p {
+    font-size: 11px;
+    line-height: 1.7;
+  }
+
+  .guidance-card p.guidance-amharic {
+    padding-top: 8px;
+    line-height: 1.8;
+  }
+
+  .application-note {
+    width: calc(100% - 24px);
+    gap: 10px;
+    margin-bottom: 32px;
+    padding: 14px;
+  }
+
+  .application-note-icon {
+    width: 31px;
+    height: 31px;
+    font-size: 18px;
+  }
+
+  .application-note h3,
+  .application-note h4 {
+    font-size: 13px;
+  }
+
+  .application-note p {
+    font-size: 11px;
+    line-height: 1.8;
+  }
+
+  .application-footer-inner {
+    flex-direction: column;
+    gap: 20px;
+    width: calc(100% - 26px);
+    padding: 27px 0;
+  }
+
+  .application-footer h3 {
+    font-size: 17px;
+  }
+
+  .application-footer p {
+    font-size: 11px;
+  }
+
+  .application-footer-links {
+    gap: 10px;
+  }
+
+  .application-footer-bottom {
+    padding: 12px;
+    font-size: 10px;
+  }
+}
+
+/* =========================================
+   EXTRA SMALL PHONES
+   ========================================= */
+
+@media (max-width: 360px) {
+  .application-nav {
+    gap: 2px;
+  }
+
+  .application-nav a {
+    padding: 7px 6px;
+    font-size: 9px;
+  }
+
+  .application-hero {
+    padding: 28px 13px;
+  }
+
+  .application-hero h1 {
+    font-size: 25px;
+  }
+
+  .country-card {
+    grid-template-columns: 37px minmax(0, 1fr);
+    column-gap: 6px;
+  }
+
+  .country-card-number {
+    width: 30px;
+    height: 30px;
+    margin-left: 7px;
+    font-size: 12px;
+  }
+
+  .country-card-top {
+    gap: 5px;
+  }
+
+  .country-flag-wrap {
+    width: 49px;
+    height: 36px;
+  }
+
+  .country-tag {
+    font-size: 7px;
+  }
+
+  .country-form-button {
+    padding: 11px 10px;
+  }
+
+  .country-form-button span:first-child {
+    font-size: 12px;
+  }
+
+  .country-form-button span:nth-child(2) {
+    font-size: 9px;
   }
 
   .guidance-grid {
     grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .guidance-card {
-    padding: 21px;
-  }
-
-  .application-note {
-    width: calc(100% - 28px);
-    margin-bottom: 45px;
-    padding: 18px;
-  }
-
-  .application-footer-inner {
-    width: calc(100% - 30px);
-    flex-direction: column;
-    gap: 25px;
-    padding: 32px 0;
-  }
-}
-
-@media (min-width: 701px) and (max-width: 850px) {
-  .application-header-inner {
-    width: calc(100% - 28px);
-    gap: 12px;
-  }
-
-  .application-nav a {
-    padding: 9px;
-    font-size: 11px;
-  }
-
-  .application-logo-text small {
-    max-width: 200px;
-  }
-}
-
-@media (max-width: 380px) {
-  .application-nav a {
-    padding: 8px 7px;
-    font-size: 10px;
-  }
-
-  .country-card-top {
-    padding: 15px;
-  }
-
-  .country-flag-wrap {
-    width: 85px;
-    height: 63px;
-  }
-
-  .application-hero h1 {
-    font-size: 29px;
   }
 }
