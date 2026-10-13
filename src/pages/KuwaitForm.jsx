@@ -816,36 +816,32 @@ function KuwaitForm() {
           </div>
 
           <div className="kuwait-input-grid">
-            {renderField("Full Name / ሙሉ ስም", "full_name", {
+            {renderField("ሙሉ ስም እስከ  አያት", "full_name", {
               required: true,
             })}
-            {renderField("Gender / ፆታ", "gender", {
+            {renderField(" ፆታ", "gender", {
               type: "select",
               options: [
                 { value: "Male", label: "Male / ወንድ" },
                 { value: "Female", label: "Female / ሴት" },
               ],
             })}
-            {renderField("Age / እድሜ", "age", {
+            {renderField("እድሜ", "age", {
               type: "number",
               min: 0,
               max: 120,
             })}
-            {renderField("Height (cm) / ቁመት", "height", {
+           
+            {renderField("የፓስፖርት ቁጥር", "weight", {
               type: "number",
               min: 0,
               step: "0.1",
             })}
-            {renderField("Weight (kg) / ክብደት", "weight", {
-              type: "number",
-              min: 0,
-              step: "0.1",
-            })}
-            {renderField("Phone Number / ስልክ ቁጥር", "phone", {
+            {renderField(" ስልክ ቁጥር", "phone", {
               type: "tel",
               required: true,
             })}
-            {renderField("Education Level / የትምህርት ደረጃ", "education_level")}
+            
           </div>
 
           <div className="kuwait-section-title">
@@ -857,14 +853,11 @@ function KuwaitForm() {
           </div>
 
           <div className="kuwait-input-grid">
-            {renderField("Residential Address / መኖሪያ አድራሻ", "address")}
-            {renderField("Woreda / ወረዳ", "woreda")}
-            {renderField("Kebele / ቀበሌ", "kebele")}
-            {renderField("Nationality / ዜግነት", "nationality")}
-            {renderField("Date of Birth / የትውልድ ዘመን", "date_of_birth", {
-              type: "date",
-            })}
-            {renderField("Place of Birth / የትውልድ ቦታ", "place_of_birth")}
+            
+            {renderField(" ወረዳ", "woreda")}
+            {renderField(" ቀበሌ", "kebele")}
+            {renderField(" ዜግነት", "nationality")}
+            
             {renderField("Form Date / ቅጹ የተሞላበት ቀን", "form_date", {
               type: "date",
             })}
@@ -879,21 +872,21 @@ function KuwaitForm() {
           </div>
 
           <div className="kuwait-input-grid">
-            {renderField("Contact Full Name / ሙሉ ስም", "contact_full_name")}
-            {renderField("Contact Gender / ፆታ", "contact_gender", {
+            {renderField(" ሙሉ ስም እስከ አያት", "contact_full_name")}
+            {renderField(" ፆታ", "contact_gender", {
               type: "select",
               options: [
                 { value: "Male", label: "Male / ወንድ" },
                 { value: "Female", label: "Female / ሴት" },
               ],
             })}
-            {renderField("Contact Age / እድሜ", "contact_age", {
+            {renderField(" እድሜ", "contact_age", {
               type: "number",
               min: 0,
               max: 120,
             })}
-            {renderField("Occupation / ስራ", "contact_occupation")}
-            {renderField("Contact Phone / ስልክ ቁጥር", "contact_phone", {
+           
+            {renderField(" ስልክ ቁጥር", "contact_phone", {
               type: "tel",
             })}
           </div>
@@ -915,7 +908,7 @@ function KuwaitForm() {
               type="submit"
               disabled={loading}
             >
-              የሞሉትን ፎርም ይመልከቱ / Preview Form
+              የሞሉትን ፎርም ለመመልከት እዚጋ ይንኩ
             </button>
           </div>
         </form>
@@ -986,13 +979,13 @@ function KuwaitForm() {
                     <h3>❖ የተመዝጋቢው ማንነት / Applicant Identity</h3>
                     <table>
                       <tbody>
-                        <tr><th>ሙሉ ስም / Full Name</th><td>{formData.full_name || "—"}</td></tr>
-                        <tr><th>ፆታ / Gender</th><td>{formData.gender || "—"}</td></tr>
-                        <tr><th>እድሜ / Age</th><td>{formData.age || "—"}</td></tr>
-                        <tr><th>ቁመት / Height (cm)</th><td>{formData.height || "—"}</td></tr>
-                        <tr><th>ክብደት / Weight (kg)</th><td>{formData.weight || "—"}</td></tr>
-                        <tr><th>ስ.ቁ / Phone</th><td>{formData.phone || "—"}</td></tr>
-                        <tr><th>የትምህርት ደረጃ / Education</th><td>{formData.education_level || "—"}</td></tr>
+                        <tr><th>ሙሉ ስም </th><td>{formData.full_name || "—"}</td></tr>
+                        <tr><th>ፆታ </th><td>{formData.gender || "—"}</td></tr>
+                        <tr><th>እድሜ </th><td>{formData.age || "—"}</td></tr>
+                        
+                        <tr><th>የፓስፖርት ቁጥር </th><td>{formData.weight || "—"}</td></tr>
+                        <tr><th>ስ.ቁ </th><td>{formData.phone || "—"}</td></tr>
+                      
                       </tbody>
                     </table>
                   </section>
@@ -1001,13 +994,12 @@ function KuwaitForm() {
                     <h3>የአድራሻ መረጃ / Address Information</h3>
                     <table>
                       <tbody>
-                        <tr><th>መኖሪያ አድራሻ / Address</th><td>{formData.address || "—"}</td></tr>
-                        <tr><th>ወረዳ / Woreda</th><td>{formData.woreda || "—"}</td></tr>
-                        <tr><th>ቀበሌ / Kebele</th><td>{formData.kebele || "—"}</td></tr>
-                        <tr><th>ዜግነት / Nationality</th><td>{formData.nationality || "—"}</td></tr>
-                        <tr><th>የትውልድ ዘመን / Date of Birth</th><td>{formData.date_of_birth || "—"}</td></tr>
-                        <tr><th>የትውልድ ቦታ / Place of Birth</th><td>{formData.place_of_birth || "—"}</td></tr>
-                        <tr><th>ቅጽ የተሞላበት ቀን / Form Date</th><td>{formData.form_date || "—"}</td></tr>
+                       
+                        <tr><th>ወረዳ </th><td>{formData.woreda || "—"}</td></tr>
+                        <tr><th>ቀበሌ</th><td>{formData.kebele || "—"}</td></tr>
+                        <tr><th>ዜግነት </th><td>{formData.nationality || "—"}</td></tr>
+                      
+                        <tr><th>ቅጽ የተሞላበት ቀን </th><td>{formData.form_date || "—"}</td></tr>
                       </tbody>
                     </table>
                   </section>
@@ -1025,11 +1017,11 @@ function KuwaitForm() {
                   <h3>❖ የቅርብ ተጠሪ ወይም ተያዥ / Emergency Contact</h3>
                   <table>
                     <tbody>
-                      <tr><th>ሙሉ ስም / Full Name</th><td>{formData.contact_full_name || "—"}</td></tr>
-                      <tr><th>ፆታ / Gender</th><td>{formData.contact_gender || "—"}</td></tr>
-                      <tr><th>እድሜ / Age</th><td>{formData.contact_age || "—"}</td></tr>
-                      <tr><th>ስራ / Occupation</th><td>{formData.contact_occupation || "—"}</td></tr>
-                      <tr><th>ስ.ቁ / Phone</th><td>{formData.contact_phone || "—"}</td></tr>
+                      <tr><th>ሙሉ ስም </th><td>{formData.contact_full_name || "—"}</td></tr>
+                      <tr><th>ፆታ </th><td>{formData.contact_gender || "—"}</td></tr>
+                      <tr><th>እድሜ </th><td>{formData.contact_age || "—"}</td></tr>
+                     
+                      <tr><th>ስ.ቁ </th><td>{formData.contact_phone || "—"}</td></tr>
                     </tbody>
                   </table>
                 </section>
@@ -1060,7 +1052,7 @@ function KuwaitForm() {
               >
                 {loading
                   ? "በመመዝገብ ላይ ነው ትንሽ ይጠብቁ.../ ፎርሙን የ እርስዎ ስልክ ላይ ያገኙታል..."
-                  : "submit the form/ፎርሙን አስገባ"}
+                  : "ፎርሙን ለማስገባት እዚጋ ይንኩ"}
               </button>
 
               {/* The registration success message appears only here, below Submit. */}

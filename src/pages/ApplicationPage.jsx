@@ -17,7 +17,7 @@ const countries = [
       "ዱባይ በተባበሩት የዓረብ ኤምሬቶች ውስጥ ዋና የንግድና የሥራ መዳረሻ ናት። ከማመልከትዎ በፊት ከሥራ፣ ከሥራ ፈቃድ፣ ከቪዛ እና ከሰነዶች ጋር የተያያዙ መስፈርቶችን ያረጋግጡ።",
     color: "dubai",
     buttonText: "Fill Dubai Form",
-    buttonAmharic: "የዱባይ ቅጽ ይሙሉ",
+    buttonAmharic: "የዱባይ ቅጽ ለመሙላት ይህን ይንኩ",
   },
   {
     id: "kuwait",
@@ -30,7 +30,7 @@ const countries = [
       "ኩዌት በተለያዩ የሥራ ዘርፎች የቅጥር ዕድሎች ያሉባት አገር ናት። ማመልከቻዎን ከመሙላትዎ በፊት ስለ ሥራዎ፣ ስለ ሥራ ፈቃድ፣ ስለ ቪዛ እና ስለ ደጋፊ ሰነዶች መስፈርቶች ያረጋግጡ።",
     color: "kuwait",
     buttonText: "Fill Kuwait Form",
-    buttonAmharic: "የኩዌት ቅጽ ይሙሉ",
+    buttonAmharic: "የኩዌት ቅጽ ለመሙላት ይህን ይንኩ",
   },
   {
     id: "canada",
@@ -43,7 +43,7 @@ const countries = [
       "ካናዳ የተለያዩ የሥራና የኢሚግሬሽን መንገዶች ያሏት አገር ናት። እያንዳንዱ ፕሮግራም የራሱ የብቃትና የሰነድ መስፈርቶች ስላሉት ማመልከቻዎን ከመጀመርዎ በፊት ተገቢውን ፕሮግራምና ኦፊሴላዊ መመሪያ ይመልከቱ።",
     color: "canada",
     buttonText: "Fill Canada Form",
-    buttonAmharic: "የካናዳ ቅጽ ይሙሉ",
+    buttonAmharic: "የካናዳ ቅጽ ለመሙላት ይህን ይንኩ",
   },
 ];
 
@@ -86,13 +86,10 @@ function ApplicationPage() {
               e-LMIS VISA APPLICATION PORTAL
             </span>
 
-            <h1>Choose Your Destination</h1>
-            <h2 lang="am">የሚፈልጉትን መዳረሻ አገር ይምረጡ</h2>
+           
+            <h1 lang="am">የሚፈልጉትን መዳረሻ አገር ይምረጡ</h1>
 
-            <p>
-              Explore the information for each destination and select the
-              correct country form to continue your application.
-            </p>
+            
 
             <p lang="am">
               ለእያንዳንዱ መዳረሻ የተሰጠውን መረጃ ይመልከቱና ማመልከቻዎን ለመቀጠል
@@ -132,16 +129,9 @@ function ApplicationPage() {
                   <h3>{country.name}</h3>
                   <h4 lang="am">{country.amharicName}</h4>
 
-                  <div className="country-description">
-                    <h5>About this destination</h5>
-                    <p>{country.description}</p>
-                  </div>
+                 
 
-                  <div className="country-description country-description-am">
-                    <h5 lang="am">ስለ አገሩ</h5>
-                    <p lang="am">{country.amharicDescription}</p>
-                  </div>
-
+         
                   <div className="country-card-action">
                     <button
                       type="button"

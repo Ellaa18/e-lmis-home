@@ -68,31 +68,28 @@ const initialForm = {
 };
 
 const applicantFields = [
-  { name: "full_name", label: "ሙሉ ስም", type: "text", required: true },
-  { name: "address", label: "አድራሻ", type: "text" },
+  { name: "full_name", label: "ሙሉ ስም እስከ አያት", type: "text", required: true },
+  
   { name: "woreda", label: "ወረዳ", type: "text" },
   { name: "kebele", label: "ቀበሌ", type: "text" },
   { name: "nationality", label: "ዜግነት", type: "text" },
   { name: "gender", label: "ጾታ", type: "select" },
   { name: "age", label: "እድሜ", type: "number" },
-  { name: "date_of_birth", label: "የትውልድ ዘመን", type: "date" },
-  { name: "place_of_birth", label: "የትውልድ ቦታ", type: "text" },
-  { name: "occupation", label: "የመተዳደሪያ የሥራ ዓይነት", type: "text" },
-  { name: "id_number", label: "የመታወቂያ ቁጥር", type: "text" },
+ 
+ 
+  { name: "id_number", label: "የፓስፖርት ቁጥር", type: "text" },
   { name: "form_date", label: "ፎርም የተሞላበት ቀን", type: "date" },
-  { name: "weight", label: "ክብደት", type: "number" },
-  { name: "height", label: "ቁመት", type: "number" },
+ 
   { name: "phone", label: "ስልክ ቁጥር", type: "tel" },
 ];
 
 const contactFields = [
-  { name: "contact_full_name", label: "ሙሉ ስም", type: "text" },
-  { name: "contact_address", label: "አድራሻ", type: "text" },
+  { name: "contact_full_name", label: "ሙሉ ስም እስከ አያት", type: "text" },
+  
   { name: "contact_region", label: "ክልል", type: "text" },
-  { name: "contact_woreda", label: "ወረዳ", type: "text" },
-  { name: "contact_kebele", label: "ቀበሌ", type: "text" },
+
   { name: "contact_nationality", label: "ዜግነት", type: "text" },
-  { name: "contact_id_number", label: "የመታወቂያ ቁጥር", type: "text" },
+
   { name: "contact_phone", label: "ስልክ ቁጥር", type: "tel" },
 ];
 
@@ -869,7 +866,7 @@ function CanadaForm() {
             onClick={handlePreview}
             disabled={isBusy}
           >
-            የሞሉትን ፎርም ይመልከቱ
+            የሞሉትን ፎርም ለመመልከት እዚጋ ይንኩ
           </button>
         </div>
       </main>
@@ -976,7 +973,7 @@ function CanadaForm() {
                   በመመዝገብ ላይ ነው ትንሽ ይጠብቁ.../ የሞሉትን ፎርም የ እርስዎ ስልክ ላይ ያገኙታል...
                 </>
               ) : (
-                "Submit the form / ፎርሙን አስገባ "
+                " ፎርሙን ለማስገባት እዚጋ ይንኩ "
               )}
             </button>
 

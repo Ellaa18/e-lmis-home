@@ -36,42 +36,37 @@ const initialForm = {
 };
 
 const applicantFields = [
-  { name: "full_name", label: "ሙሉ ስም", en: "Full Name", required: true },
-  { name: "address", label: "አድራሻ", en: "Address" },
-  { name: "woreda", label: "ወረዳ", en: "Woreda / District" },
-  { name: "kebele", label: "ቀበሌ", en: "Kebele" },
-  { name: "nationality", label: "ዜግነት", en: "Nationality" },
+  { name: "full_name", label: "ሙሉ ስም እስከ አያት",  required: true },
+ 
+  { name: "woreda", label: "ወረዳ" },
+  { name: "kebele", label: "ቀበሌ"},
+  { name: "nationality", label: "ዜግነት" },
   {
     name: "gender",
     label: "ጾታ",
-    en: "Gender",
+    
     type: "select",
     options: [
       { value: "ወንድ", label: "ወንድ / Male" },
       { value: "ሴት", label: "ሴት / Female" },
     ],
   },
-  { name: "age", label: "እድሜ", en: "Age", type: "number" },
-  { name: "date_of_birth", label: "የትውልድ ዘመን", en: "Date of Birth" },
-  { name: "place_of_birth", label: "የትውልድ ቦታ", en: "Place of Birth" },
-  { name: "occupation", label: "የመተዳደሪያ የሥራ ዓይነት", en: "Occupation" },
-  { name: "id_number", label: "የመታወቂያ ቁጥር", en: "ID Number" },
+  { name: "age", label: "እድሜ", type: "number" },
+ 
+  { name: "id_number", label: "የፓስፖርት ቁጥር" },
   { name: "form_date", label: "ፎርም የተሞላበት ቀን", en: "Form Date", type: "date" },
-  { name: "weight", label: "ክብደት", en: "Weight", type: "number" },
-  { name: "height", label: "ቁመት", en: "Height", type: "number" },
+  
   { name: "phone", label: "ስልክ ቁጥር", en: "Phone Number", type: "tel" },
 ];
 
 const contactFields = [
-  { name: "contact_full_name", label: "ሙሉ ስም", en: "Full Name" },
-  { name: "contact_address", label: "አድራሻ", en: "Address" },
-  { name: "contact_region", label: "ክልል", en: "Region" },
-  { name: "contact_woreda", label: "ወረዳ", en: "Woreda / District" },
-  { name: "contact_kebele", label: "ቀበሌ", en: "Kebele" },
-  { name: "contact_id_number", label: "የመታወቂያ ቁጥር", en: "ID Number" },
-  { name: "contact_date_of_birth", label: "የትውልድ ዘመን", en: "Date of Birth" },
-  { name: "contact_place_of_birth", label: "የትውልድ ቦታ", en: "Place of Birth" },
-  { name: "contact_phone", label: "ስልክ ቁጥር", en: "Phone Number", type: "tel" },
+  { name: "contact_full_name", label: "ሙሉ ስም እስከ አያት" },
+ 
+
+  { name: "contact_woreda", label: "ወረዳ" },
+  { name: "contact_kebele", label: "ቀበሌ" },
+
+  { name: "contact_phone", label: "ስልክ ቁጥር", en: "Phone Number" },
 ];
 
 const PHOTO_BUCKET = "dubai-photos";
@@ -816,7 +811,7 @@ function DubaiForm() {
             onClick={handlePreview}
             disabled={saving || downloading}
           >
-            Preview / የሞሉትን ፎርም ይመልከቱ
+             የሞሉትን ፎርም ለመመልከት እዚጋ ይንኩ
           </button>
         </div>
       </section>
@@ -932,19 +927,7 @@ function DubaiForm() {
           </div>
 
           <div className="dubai-preview-actions">
-            <button
-              type="button"
-              className="dubai-button dubai-button-secondary"
-              onClick={() => {
-                setShowPreview(false);
-                setMessage("");
-                setRegistrationSuccess(false);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              disabled={saving || downloading}
-            >
-              ወደ ፎርሙ ተመለስ / Back to Form
-            </button>
+            
 
             <button
               type="submit"
@@ -954,7 +937,7 @@ function DubaiForm() {
             >
               {saving
                 ? "በመመዝገብ ላይ ነው ትንሽ ይጠብቁ።.. / የሞሉትን ፎርም የ እርስዎ ስልክ ላይ ያገኙታል..."
-                : "Submit the form /ፎርሙን አስገባ"}
+                : "ፎርሙን ለማስገባት እዚጋ ይንኩ"}
             </button>
           </div>
 

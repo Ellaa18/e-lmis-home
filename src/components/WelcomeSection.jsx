@@ -101,9 +101,8 @@ function WelcomeSection() {
               window.location.href = "/application";
             }}
           >
-            <span>Fill Application Form</span>
-            <span className="button-divider">/</span>
-            <span>የማመልከቻ ቅጹን ይሙሉ</span>
+            
+            <span>የማመልከቻ ቅጹን ለመሙላት ይሀንን ይንኩ →</span>
             <span className="button-arrow">→</span>
           </button>
 

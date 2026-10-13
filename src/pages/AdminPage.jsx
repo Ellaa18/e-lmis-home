@@ -1078,25 +1078,7 @@ function AdminPage() {
 
                             <td>
                               <div className="admin-row-actions">
-                                <button
-                                  type="button"
-                                  className="admin-button admin-button-light"
-                                  disabled={Boolean(rowBusy) || detailsLoading}
-                                  onClick={() =>
-                                    viewApplicantDetails(
-                                      person,
-                                      selectedCountry
-                                    )
-                                  }
-                                  title={t(
-                                    "View all registration details",
-                                    "ሁሉንም የምዝገባ ዝርዝሮች ይመልከቱ"
-                                  )}
-                                >
-                                  {detailsBusy
-                                    ? t("Loading…", "በመጫን ላይ…")
-                                    : t("Details", "ዝርዝር")}
-                                </button>
+                                
 
                                 <button
                                   type="button"
