@@ -787,8 +787,8 @@
 .admin-applicant-cell {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 185px;
+  gap: 3px;
+  min-width: 60px;
 }
 
 .admin-applicant-avatar {

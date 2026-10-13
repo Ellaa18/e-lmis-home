@@ -58,8 +58,7 @@ const FIELD_LABELS = {
   status: ["Status", "ሁኔታ"],
   profile_photo_url: ["Profile photo", "የመገለጫ ፎቶ"],
   photo: ["Photo", "ፎቶ"],
-  pdf_path: ["PDF storage path", "የፒዲኤፍ ማከማቻ መንገድ"],
-  pdf_url: ["PDF URL", "የፒዲኤፍ አድራሻ"],
+  
 };
 
 function readVisitTimes() {
@@ -129,7 +128,7 @@ function getFieldLabel(key, language) {
   const known = FIELD_LABELS[key];
 
   if (known) {
-    if (language === "en") return known[0];
+  
     if (language === "am") return known[1];
     return `${known[0]} / ${known[1]}`;
   }
@@ -660,18 +659,14 @@ function AdminPage() {
       <main className="admin-content">
         {!selectedCountry ? (
           <>
-            <section className="admin-welcome-card">
-              <div className="admin-welcome-copy">
-                <span className="admin-eyebrow">
-                  {t("ADMINISTRATION", "አስተዳደር")}
-                </span>
-              </div>
+            <section >
+              
 
-              <div className="admin-total-card">
+              <div className="admin-eyebrow">
                 <span>
                   {t(
                     "Total registrations",
-                    "ጠቅላላ የተመዘገቡ ሰዎች"
+                    "ጠቅላላ የተመዘገቡ ሰዎች : "
                   )}
                 </span>
                 <strong>{loading ? "—" : totalApplicants}</strong>
@@ -682,7 +677,7 @@ function AdminPage() {
               <div>
                 <p>
                   {t(
-                    "Select a country to manage its applicants.",
+                    ".",
                     "አመልካቾችን ለመመልከት አገር ይምረጡ።"
                   )}
                 </p>
@@ -690,7 +685,7 @@ function AdminPage() {
 
               {lastUpdated && (
                 <span className="admin-updated-time">
-                  {t("Last updated", "ለመጨረሻ ጊዜ የተዘመነው")}{" "}
+                  {t(".", "ለመጨረሻ ጊዜ የተመዘገበ ሰው")}{" "}
                   {lastUpdated.toLocaleTimeString()}
                 </span>
               )}
@@ -781,9 +776,7 @@ function AdminPage() {
 
                             <strong>
                               {t(
-                                newCount === 1
-                                  ? "There is 1 new applicant"
-                                  : `There are ${newCount} new applicants`,
+                                
                                 newCount === 1
                                   ? "1 አዲስ አመልካች አለ"
                                   : `${newCount} አዲስ አመልካቾች አሉ`
@@ -801,27 +794,13 @@ function AdminPage() {
                         </p>
                       </div>
 
-                      <div className="admin-country-card-bottom">
-                        <div>
-                          <strong>{loading ? "—" : count}</strong>
-                          <span>{t("Registrations", "ምዝገባዎች")}</span>
-                        </div>
-                        <span className="admin-country-arrow">→</span>
-                      </div>
-
                       {errors[country.id] && (
                         <p className="admin-country-error-text">
                           {t("Table access error", "የሰንጠረዥ ስህተት")}
                         </p>
                       )}
 
-                      <span className="admin-country-card-link">
-                        {t(
-                          "Manage registrations",
-                          "ምዝገባዎችን ያስተዳድሩ"
-                        )}
-                        <span>↗</span>
-                      </span>
+                     
                     </div>
                   </button>
                 );
@@ -869,9 +848,7 @@ function AdminPage() {
                 </div>
 
                 <div className="admin-country-overview-copy">
-                  <span className="admin-eyebrow">
-                    {t("COUNTRY WORKSPACE", "የአገር የሥራ ቦታ")}
-                  </span>
+                 
 
                   <h2>
                     {selectedCountry.name}{" "}
@@ -891,12 +868,7 @@ function AdminPage() {
                   <strong>{selectedApplicants.length}</strong>
                 </div>
 
-                <div>
-                  <span>
-                    {t("Matching results", "የተገኙ ውጤቶች")}
-                  </span>
-                  <strong>{filteredApplicants.length}</strong>
-                </div>
+                
               </div>
             </section>
 
@@ -943,20 +915,13 @@ function AdminPage() {
             <section className="admin-list-card">
               <div className="admin-list-heading">
                 <div>
-                  <span className="admin-eyebrow">
-                    {t("REGISTRATION RECORDS", "የምዝገባ መዝገቦች")}
-                  </span>
+                 
 
                   <h2>
-                    {t("Registered applicants", "የተመዘገቡ አመልካቾች")}
+                    {t( "የተመዘገቡ አመልካቾች")}
                   </h2>
 
-                  <p>
-                    {t(
-                      "View complete details, download the saved PDF, or delete a registration.",
-                      "ሙሉ ዝርዝሩን ይመልከቱ፣ ፒዲኤፍ ያውርዱ ወይም ምዝገባን ይሰርዙ።"
-                    )}
-                  </p>
+                 
                 </div>
 
                 <label className="admin-search">
@@ -967,8 +932,8 @@ function AdminPage() {
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder={t(
-                      "Search name, phone, passport…",
-                      "ስም፣ ስልክ፣ ፓስፖርት ይፈልጉ…"
+                      
+                      "በ ስም ይፈልጉ"
                     )}
                     aria-label="Search applicants"
                   />
@@ -1066,12 +1031,7 @@ function AdminPage() {
 
                                 <div className="admin-applicant-info">
                                   <strong>{getApplicantName(person)}</strong>
-                                  <small>
-                                    {person.email ||
-                                      person.passport_number ||
-                                      person.elmis_id ||
-                                      t("Applicant", "አመልካች")}
-                                  </small>
+                                  
                                 </div>
                               </div>
                             </td>
@@ -1110,7 +1070,7 @@ function AdminPage() {
                                   ) : (
                                     <>
                                       <span aria-hidden="true">↓</span>
-                                      {t("Download PDF", "ፒዲኤፍ አውርድ")}
+                                      {t(".", "ፒዲኤፍ አውርድ")}
                                     </>
                                   )}
                                 </button>
@@ -1170,189 +1130,7 @@ function AdminPage() {
         )}
       </main>
 
-      {/* COMPLETE APPLICANT DETAILS MODAL */}
-      {detailsApplicant && (
-        <div
-          className="admin-details-overlay"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              closeApplicantDetails();
-            }
-          }}
-        >
-          <section
-            className="admin-details-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="admin-details-title"
-          >
-            <div className="admin-details-header">
-              <div>
-                <span className="admin-eyebrow">
-                  {t(
-                    "COMPLETE REGISTRATION",
-                    "ሙሉ የምዝገባ ዝርዝር"
-                  )}
-                </span>
-
-                
-
-                <p>
-                  {detailsCountry?.name} ·{" "}
-                  {t(
-                    "Information ",
-                    
-                  )}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                className="admin-details-close"
-                onClick={closeApplicantDetails}
-                aria-label="Close details"
-              >
-                ×
-              </button>
-            </div>
-
-            {detailsLoading ? (
-              <div className="admin-empty-state">
-                <div className="admin-loader" />
-                <p>
-                  {t(
-                    "Fetching complete registration details…",
-                    "ሙሉ የምዝገባ ዝርዝር በመጫን ላይ ነው…"
-                  )}
-                </p>
-              </div>
-            ) : detailsError ? (
-              <div className="admin-alert admin-alert-error">
-                <strong>
-                  {t(
-                    "Could not load applicant details.",
-                    "የአመልካቹን ዝርዝር መጫን አልተቻለም።"
-                  )}
-                </strong>
-                <p>{detailsError}</p>
-                <p>
-                  {t(
-                    "Check that the registration table has an id column and that its Supabase read policy permits this request.",
-                    "ሰንጠረዡ የid አምድ እንዳለውና የSupabase የማንበብ ፈቃድ እንደተፈቀደ ያረጋግጡ።"
-                  )}
-                </p>
-
-                <button
-                  type="button"
-                  className="admin-button admin-button-light"
-                  onClick={() =>
-                    viewApplicantDetails(
-                      detailsApplicant,
-                      detailsCountry
-                    )
-                  }
-                >
-                  {t("Try again", "እንደገና ይሞክሩ")}
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="admin-details-body">
-                  {Object.entries(detailsApplicant).map(([key, value]) => {
-                    const imageValue = isImageField(key, value);
-                    const isPdfField = /pdf_url|document_url/i.test(key);
-                    const isUrl =
-                      typeof value === "string" &&
-                      /^https?:\/\//i.test(value);
-
-                    return (
-                      <div className="admin-details-field" key={key}>
-                        <div className="admin-details-label">
-                          {getFieldLabel(key, language)}
-                        </div>
-
-                        <div className="admin-details-value">
-                          {value === null ||
-                          value === undefined ||
-                          value === "" ? (
-                            <span className="admin-details-empty">
-                              {t("Not provided", "አልተገለጸም")}
-                            </span>
-                          ) : imageValue ? (
-                            <div className="admin-details-image-wrap">
-                              <a
-                                href={value}
-                                target="_blank"
-                                rel="noreferrer"
-                                title={t(
-                                  "Open image in a new tab",
-                                  "ምስሉን በአዲስ ታብ ይክፈቱ"
-                                )}
-                              >
-                                <img
-                                  src={value}
-                                  alt={getFieldLabel(key, language)}
-                                  className="admin-details-image"
-                                  loading="lazy"
-                                />
-                              </a>
-
-                              <a
-                                href={value}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="admin-details-link"
-                              >
-                                {t("Open image", "ምስሉን ክፈት")}
-                              </a>
-                            </div>
-                          ) : isUrl ? (
-                            <div className="admin-details-url">
-                              <a
-                                href={value}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="admin-details-link"
-                              >
-                                {isPdfField
-                                  ? t("Open PDF", "ፒዲኤፍ ክፈት")
-                                  : t("Open link", "ሊንኩን ክፈት")}
-                              </a>
-                              <code>{value}</code>
-                            </div>
-                          ) : (
-                            <pre className="admin-details-text">
-                              {formatDetailValue(value)}
-                            </pre>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="admin-details-footer">
-                  <span>
-                    {Object.keys(detailsApplicant).length}{" "}
-                    {t(
-                      "database fields",
-                      "የዳታቤዝ መረጃ አምዶች"
-                    )}
-                  </span>
-
-                  <button
-                    type="button"
-                    className="admin-button admin-button-light"
-                    onClick={closeApplicantDetails}
-                  >
-                    {t("Close", "ዝጋ")}
-                  </button>
-                </div>
-              </>
-            )}
-          </section>
-        </div>
-      )}
+      
     </div>
   );
 }

@@ -761,13 +761,7 @@ function KuwaitForm() {
             handlePreview();
           }}
         >
-          <div className="kuwait-form-heading">
-            <div>
-              <h2>Applicant Information</h2>
-              <p>የተመዝጋቢው መረጃ</p>
-            </div>
-            <span className="kuwait-required-note">* Required fields</span>
-          </div>
+
 
           <div className="kuwait-photo-upload">
             <div className="kuwait-photo-preview">

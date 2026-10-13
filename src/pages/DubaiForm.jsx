@@ -47,16 +47,16 @@ const applicantFields = [
     
     type: "select",
     options: [
-      { value: "ወንድ", label: "ወንድ / Male" },
-      { value: "ሴት", label: "ሴት / Female" },
+      { value: "ወንድ", label: "ወንድ " },
+      { value: "ሴት", label: "ሴት " },
     ],
   },
   { name: "age", label: "እድሜ", type: "number" },
  
   { name: "id_number", label: "የፓስፖርት ቁጥር" },
-  { name: "form_date", label: "ፎርም የተሞላበት ቀን", en: "Form Date", type: "date" },
+  { name: "form_date", label: "ፎርም የተሞላበት ቀን",  type: "date" },
   
-  { name: "phone", label: "ስልክ ቁጥር", en: "Phone Number", type: "tel" },
+  { name: "phone", label: "ስልክ ቁጥር",  type: "tel" },
 ];
 
 const contactFields = [
@@ -889,7 +889,7 @@ function DubaiForm() {
                   {applicantFields.map((field) => (
                     <div className="dubai-paper-field" key={field.name}>
                       <strong>
-                        {field.label} / {field.en}:
+                        {field.label}  {field.en}:
                       </strong>
                       <span>{displayValue(field.name)}</span>
                     </div>
@@ -904,7 +904,7 @@ function DubaiForm() {
                   {contactFields.map((field) => (
                     <div className="dubai-paper-field" key={field.name}>
                       <strong>
-                        {field.label} / {field.en}:
+                        {field.label}  {field.en}:
                       </strong>
                       <span>{displayValue(field.name)}</span>
                     </div>
