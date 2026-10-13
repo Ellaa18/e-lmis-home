@@ -102,7 +102,7 @@ function WelcomeSection() {
             }}
           >
             
-            <span>የማመልከቻ ቅጹን ለመሙላት ይሀንን ይንኩ →</span>
+            <span>የማመልከቻ ቅጹን ለመሙላት ይህንን ይንኩ →</span>
             <span className="button-arrow">→</span>
           </button>
 
